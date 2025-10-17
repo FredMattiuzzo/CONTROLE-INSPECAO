@@ -1,0 +1,35 @@
+{% extends "schedule/base.html" %}
+
+{% block title %}Excluir entrada{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="breadcrumbs">
+        <a href="{% url 'schedule:weekly_schedule' %}">← Voltar para agenda</a>
+    </div>
+    <h2>Excluir entrada</h2>
+    <p>Tem certeza de que deseja remover a entrada abaixo?</p>
+
+    <div class="message">
+        <strong>{{ object.get_entry_type_display }}</strong> em {{ object.date|date:"d/m/Y" }}<br>
+        Inspetor: {{ object.inspector.full_name }}<br>
+        {% if object.sa_number %}SA: {{ object.sa_number }}<br>{% endif %}
+        {{ object.content|linebreaksbr }}
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        {% if request.GET.next %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}" />
+        {% endif %}
+        <div class="actions">
+            <button type="submit">Confirmar exclusão</button>
+            {% if request.GET.next %}
+                <a class="secondary" href="{{ request.GET.next }}">Cancelar</a>
+            {% else %}
+                <a class="secondary" href="{% url 'schedule:weekly_schedule' %}">Cancelar</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}

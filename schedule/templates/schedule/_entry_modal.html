@@ -1,0 +1,139 @@
+<div id="entry-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="entry-modal-title">
+        <button type="button" class="modal-close" data-close-entry>&times;</button>
+        <h3 id="entry-modal-title">Nova entrada</h3>
+        <form action="{{ entry_create_url }}" method="post" id="entry-modal-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+            {% if entry_form.non_field_errors %}
+                <div class="field-errors">
+                    {% for error in entry_form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% for field in entry_form %}
+                <div class="field-group field-group-{{ field.name }}">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+                    {% if field.errors %}
+                        <div class="field-errors">
+                            {% for error in field.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <div class="actions">
+                <button type="submit">Salvar</button>
+                <button type="button" class="secondary" data-close-entry>Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+(function () {
+    const modal = document.getElementById('entry-modal');
+    if (!modal) { return; }
+    const form = modal.querySelector('#entry-modal-form');
+    const inspectorField = form.querySelector('#id_inspector');
+    const dateField = form.querySelector('#id_date');
+    const entryTypeField = form.querySelector('#id_entry_type');
+    const inspectionTypeGroup = form.querySelector('.field-group-inspection_type');
+    const statusGroup = form.querySelector('.field-group-status');
+
+    const openButtons = document.querySelectorAll('[data-open-entry]');
+    const closeButtons = modal.querySelectorAll('[data-close-entry]');
+
+    function setFieldValue(field, value) {
+        if (field && value !== undefined && value !== null && value !== '') {
+            field.value = value;
+        }
+    }
+
+    function toggleInspectionFields() {
+        if (!entryTypeField) { return; }
+        const isInspection = entryTypeField.value === 'INSPECTION';
+        if (inspectionTypeGroup) { inspectionTypeGroup.style.display = isInspection ? 'block' : 'none'; }
+        if (statusGroup) { statusGroup.style.display = isInspection ? 'block' : 'none'; }
+    }
+
+    function openModal(inspectorId, dateValue) {
+        form.reset();
+        if (inspectorField && inspectorField.dataset.defaultValue) {
+            inspectorField.value = inspectorField.dataset.defaultValue;
+        }
+        if (dateField && dateField.dataset.defaultValue) {
+            dateField.value = dateField.dataset.defaultValue;
+        }
+        setFieldValue(inspectorField, inspectorId);
+        setFieldValue(dateField, dateValue);
+        toggleInspectionFields();
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        const focusTarget = inspectorField || modal.querySelector('button');
+        if (focusTarget) { focusTarget.focus(); }
+    }
+
+    function closeModal() {
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+
+    openButtons.forEach(function (button) {
+        button.addEventListener('click', function (event) {
+            event.preventDefault();
+            openModal(button.dataset.targetInspector || '', button.dataset.targetDate || '');
+        });
+    });
+
+    closeButtons.forEach(function (button) {
+        button.addEventListener('click', function (event) {
+            event.preventDefault();
+            closeModal();
+        });
+    });
+
+    modal.addEventListener('click', function (event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    if (entryTypeField) {
+        entryTypeField.addEventListener('change', toggleInspectionFields);
+        toggleInspectionFields();
+    }
+
+    if (inspectorField && inspectorField.value) {
+        inspectorField.dataset.defaultValue = inspectorField.value;
+    }
+    if (dateField && dateField.value) {
+        dateField.dataset.defaultValue = dateField.value;
+    }
+
+    if (form.querySelector('.field-errors')) {
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        toggleInspectionFields();
+        const errorField = form.querySelector('.field-errors input, .field-errors select, .field-errors textarea');
+        if (errorField) {
+            errorField.focus();
+        } else if (inspectorField) {
+            inspectorField.focus();
+        }
+    }
+})();
+</script>
