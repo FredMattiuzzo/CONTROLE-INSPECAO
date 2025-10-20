@@ -5,8 +5,8 @@ class User(models.Model):
     ROLE_INSPECTOR = "INSPECTOR"
     ROLE_MANAGER = "MANAGER"
     ROLE_CHOICES = (
-        (ROLE_INSPECTOR, "Inspector"),
-        (ROLE_MANAGER, "Manager"),
+        (ROLE_INSPECTOR, "Inspetor"),
+        (ROLE_MANAGER, "Gestor"),
     )
 
     username = models.CharField(max_length=150, unique=True)
@@ -30,15 +30,15 @@ class ScheduleEntry(models.Model):
     ENTRY_TYPE_INSPECTION = "INSPECTION"
     ENTRY_TYPE_ABSENCE = "ABSENCE"
     ENTRY_TYPE_CHOICES = (
-        (ENTRY_TYPE_INSPECTION, "Inspection"),
-        (ENTRY_TYPE_ABSENCE, "Absence"),
+        (ENTRY_TYPE_INSPECTION, "Inspeção"),
+        (ENTRY_TYPE_ABSENCE, "Ausência"),
     )
 
     INSPECTION_TYPE_INTERNAL = "INTERNAL"
     INSPECTION_TYPE_EXTERNAL = "EXTERNAL"
     INSPECTION_TYPE_CHOICES = (
-        (INSPECTION_TYPE_INTERNAL, "Internal"),
-        (INSPECTION_TYPE_EXTERNAL, "External"),
+        (INSPECTION_TYPE_INTERNAL, "Interna"),
+        (INSPECTION_TYPE_EXTERNAL, "Externa"),
     )
 
     STATUS_SCHEDULED = "AGENDADA"

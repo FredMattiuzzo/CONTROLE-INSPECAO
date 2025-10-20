@@ -26,7 +26,10 @@ class ScheduleUserMixin(LoginRequiredMixin):
 
     def is_manager(self):
         schedule_user = self.get_schedule_user()
-        return bool(schedule_user and schedule_user.role == User.ROLE_MANAGER)
+        if schedule_user and schedule_user.role == User.ROLE_MANAGER:
+            return True
+        auth_user = getattr(self.request, "user", None)
+        return bool(getattr(auth_user, "is_staff", False))
 
     def get_inspector_profile(self):
         if not hasattr(self, "_inspector_profile"):
@@ -100,6 +103,14 @@ class ScheduleFilterMixin(ScheduleUserMixin):
 
 class WeeklyScheduleView(ScheduleFilterMixin, TemplateView):
     template_name = "schedule/weekly.html"
+    filters_enabled = False
+
+    def base_context(self):
+        base = super().base_context()
+        if not self.filters_enabled:
+            base["selected_inspector"] = None
+            base["sa_filter"] = ""
+        return base
 
     def get_week_offset(self):
         if not hasattr(self, "_week_offset"):
@@ -122,7 +133,9 @@ class WeeklyScheduleView(ScheduleFilterMixin, TemplateView):
         end_date = start_date + timedelta(days=6)
         queryset = ScheduleEntry.objects.select_related("inspector", "inspector__user", "concluded_by")
         queryset = queryset.filter(date__range=(start_date, end_date))
-        queryset, inspector, _ = self.apply_filters(queryset)
+        inspector = None
+        if self.filters_enabled:
+            queryset, inspector, _ = self.apply_filters(queryset)
         entries = list(queryset)
         return entries, inspector
 

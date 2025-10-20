@@ -57,7 +57,7 @@
             {% for week in weeks %}
                 <tr>
                     {% for cell in week %}
-                        <td class="{% if not cell.is_current_month %}empty{% endif %}">
+                        <td class="entry-cell {% if not cell.is_current_month %}empty{% endif %}">
                             <div><strong>{{ cell.date|date:"d/m" }}</strong></div>
                             {% if cell.is_current_month %}
                                 {% if cell.entries %}
@@ -90,7 +90,7 @@
                                             data-open-entry
                                             data-target-date="{{ cell.date|date:'Y-m-d' }}"
                                             {% if selected_inspector %}data-target-inspector="{{ selected_inspector.pk }}"{% elif current_inspector %}data-target-inspector="{{ current_inspector.pk }}"{% endif %}>
-                                        Adicionar
+                                        +
                                     </button>
                                     <noscript>
                                         <a href="{% url 'schedule:entry_create' %}?date={{ cell.date|date:'Y-m-d' }}{% if selected_inspector %}&inspector={{ selected_inspector.pk }}{% elif current_inspector %}&inspector={{ current_inspector.pk }}{% endif %}&next={{ request.get_full_path|urlencode }}" class="secondary small">Adicionar</a>

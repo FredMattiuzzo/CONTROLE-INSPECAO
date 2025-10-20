@@ -7,34 +7,19 @@
     <div class="calendar-header">
         <h2>Semana {{ week_start|date:"d/m" }} - {{ week_end|date:"d/m/Y" }}</h2>
         <div class="actions">
-            <button type="button" id="open-entry-modal"
-                    data-open-entry
-                    {% if selected_inspector %}data-target-inspector="{{ selected_inspector.pk }}"{% elif current_inspector %}data-target-inspector="{{ current_inspector.pk }}"{% endif %}
-                    >Nova entrada</button>
-            <noscript>
-                <a href="{% url 'schedule:entry_create' %}?next={{ request.get_full_path|urlencode }}" class="secondary">Nova entrada</a>
-            </noscript>
             <a href="{% url 'schedule:monthly_schedule' %}{% if selected_inspector or sa_filter %}?{% endif %}{% if selected_inspector %}inspector={{ selected_inspector.pk }}{% endif %}{% if selected_inspector and sa_filter %}&{% endif %}{% if sa_filter %}sa={{ sa_filter|urlencode }}{% endif %}" class="secondary">Visão mensal</a>
         </div>
     </div>
 
-    <form method="get" class="inline" aria-label="Filtros do calendário">
-        <label for="id_inspector_filter">Inspetor</label>
-        <select name="inspector" id="id_inspector_filter">
-            <option value="">Todos</option>
-            {% for inspector_option in inspectors %}
-                <option value="{{ inspector_option.pk }}" {% if selected_inspector and inspector_option.pk == selected_inspector.pk %}selected{% endif %}>
-                    {{ inspector_option.full_name }}
-                </option>
-            {% endfor %}
-        </select>
-
-        <label for="id_sa_filter">SA</label>
-        <input type="text" name="sa" id="id_sa_filter" value="{{ sa_filter }}" placeholder="Número da SA" />
-
-        <button type="submit">Aplicar</button>
-        <a class="secondary" href="{% url 'schedule:weekly_schedule' %}">Limpar</a>
-    </form>
+    <div class="actions" style="margin-bottom: 16px;">
+        <button type="button" id="open-entry-modal"
+                data-open-entry
+                {% if selected_inspector %}data-target-inspector="{{ selected_inspector.pk }}"{% elif current_inspector %}data-target-inspector="{{ current_inspector.pk }}"{% endif %}
+                >Nova entrada</button>
+        <noscript>
+            <a href="{% url 'schedule:entry_create' %}?next={{ request.get_full_path|urlencode }}" class="secondary">Nova entrada</a>
+        </noscript>
+    </div>
 
     <div class="actions" style="justify-content: flex-end;">
         <a class="secondary" href="?week={{ previous_offset }}{% if selected_inspector %}&inspector={{ selected_inspector.pk }}{% endif %}{% if sa_filter %}&sa={{ sa_filter|urlencode }}{% endif %}">◀ Semana anterior</a>
@@ -55,7 +40,7 @@
                 <tr>
                     <td><strong>{{ row.inspector.full_name }}</strong></td>
                     {% for day, entries in row.day_entries %}
-                        <td>
+                        <td class="entry-cell">
                             {% if entries %}
                                 {% for entry in entries %}
                                     {% with entry.entry_type|lower as entry_type_class %}
@@ -85,7 +70,7 @@
                                         data-open-entry
                                         data-target-date="{{ day|date:'Y-m-d' }}"
                                         data-target-inspector="{{ row.inspector.pk }}">
-                                    Adicionar
+                                    +
                                 </button>
                                 <noscript>
                                     <a href="{% url 'schedule:entry_create' %}?date={{ day|date:'Y-m-d' }}&inspector={{ row.inspector.pk }}&next={{ request.get_full_path|urlencode }}" class="secondary small">Adicionar</a>

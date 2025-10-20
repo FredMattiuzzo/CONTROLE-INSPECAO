@@ -27,6 +27,24 @@ class ScheduleEntryForm(forms.ModelForm):
         self.fields["inspection_type"].required = False
         self.fields["sa_number"].required = False
 
+        self.fields["entry_type"].label = "Tipo de entrada"
+        self.fields["inspector"].label = "Inspetor"
+        self.fields["date"].label = "Data"
+        self.fields["sa_number"].label = "SA"
+        self.fields["content"].label = "Descrição"
+        self.fields["inspection_type"].label = "Tipo de inspeção"
+        self.fields["status"].label = "Status"
+
+        self.fields["entry_type"].choices = [("", "Selecione"), *[
+            choice for choice in self.fields["entry_type"].choices if choice[0]
+        ]]
+        self.fields["inspection_type"].choices = [("", "Selecione"), *[
+            choice for choice in self.fields["inspection_type"].choices if choice[0]
+        ]]
+        self.fields["status"].choices = [("", "Selecione"), *[
+            choice for choice in self.fields["status"].choices if choice[0]
+        ]]
+
         available_inspectors = (
             InspectorProfile.objects.filter(is_active=True)
             .select_related("user")
@@ -59,7 +77,11 @@ class ScheduleEntryForm(forms.ModelForm):
         )
 
     def _user_is_manager(self):
-        return bool(self.schedule_user and self.schedule_user.role == User.ROLE_MANAGER)
+        if self.schedule_user and self.schedule_user.role == User.ROLE_MANAGER:
+            return True
+        if getattr(self.auth_user, "is_staff", False):
+            return True
+        return False
 
     @staticmethod
     def _resolve_schedule_user(auth_user):
