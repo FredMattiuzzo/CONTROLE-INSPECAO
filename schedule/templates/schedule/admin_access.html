@@ -1,0 +1,22 @@
+{% extends "schedule/base.html" %}
+
+{% block title %}Acesso superior{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 600px; margin: 0 auto;">
+    <h2>Acesso superior</h2>
+    <p>Utilize esta área para acessar o painel administrativo do sistema.</p>
+    {% if can_access_admin %}
+        <div class="message" style="background: #dcfce7; border-color: #16a34a; color: #14532d;">
+            Você possui permissão para acessar o painel administrativo.
+        </div>
+        <div class="actions" style="justify-content: flex-end;">
+            <a href="{{ admin_url }}" class="secondary" target="_blank" rel="noopener">Abrir painel administrativo</a>
+        </div>
+    {% else %}
+        <div class="message" role="alert">
+            Sua conta não possui permissão para acessar o painel administrativo.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

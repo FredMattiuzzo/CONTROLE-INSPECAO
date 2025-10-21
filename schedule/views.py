@@ -326,3 +326,18 @@ class ScheduleEntryDeleteView(ScheduleEntryQuerysetMixin, DeleteView):
     def get_success_url(self):
         next_url = self.request.POST.get("next") or self.request.GET.get("next")
         return next_url or super().get_success_url()
+
+
+class AdminAccessView(ScheduleUserMixin, TemplateView):
+    template_name = "schedule/admin_access.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        can_access_admin = bool(getattr(self.request.user, "is_staff", False) or self.is_manager())
+        context.update(
+            {
+                "can_access_admin": can_access_admin,
+                "admin_url": reverse_lazy("admin:index"),
+            }
+        )
+        return context

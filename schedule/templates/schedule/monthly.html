@@ -2,46 +2,34 @@
 
 {% block title %}Agenda mensal{% endblock %}
 
+{% block extra_head %}
+<style>
+    .monthly-grid .entry { width: min(100%, 130px); min-height: 110px; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="calendar-header">
         <h2>{{ month_start|date:"F Y" }}</h2>
         <div class="actions">
-            <button type="button" id="open-entry-modal"
-                    data-open-entry
-                    {% if selected_inspector %}data-target-inspector="{{ selected_inspector.pk }}"{% elif current_inspector %}data-target-inspector="{{ current_inspector.pk }}"{% endif %}
-                    >Nova entrada</button>
-            <noscript>
-                <a href="{% url 'schedule:entry_create' %}?next={{ request.get_full_path|urlencode }}" class="secondary">Nova entrada</a>
-            </noscript>
-            <a href="{% url 'schedule:weekly_schedule' %}{% if selected_inspector or sa_filter %}?{% endif %}{% if selected_inspector %}inspector={{ selected_inspector.pk }}{% endif %}{% if selected_inspector and sa_filter %}&{% endif %}{% if sa_filter %}sa={{ sa_filter|urlencode }}{% endif %}" class="secondary">Visão semanal</a>
-            <a href="?month={{ month_previous_slug }}{% if selected_inspector %}&inspector={{ selected_inspector.pk }}{% endif %}{% if sa_filter %}&sa={{ sa_filter|urlencode }}{% endif %}" class="secondary">◀ Mês anterior</a>
-            <a href="?month={{ month_next_slug }}{% if selected_inspector %}&inspector={{ selected_inspector.pk }}{% endif %}{% if sa_filter %}&sa={{ sa_filter|urlencode }}{% endif %}" class="secondary">Próximo mês ▶</a>
+            <a href="{% url 'schedule:weekly_schedule' %}" class="secondary">Visão semanal</a>
+            <a href="?month={{ month_previous_slug }}" class="secondary">◀ Mês anterior</a>
+            <a href="?month={{ month_next_slug }}" class="secondary">Próximo mês ▶</a>
         </div>
     </div>
 
-    <form method="get" class="inline" aria-label="Filtros do calendário mensal" style="margin-bottom: 16px;">
-        <label for="id_month_filter">Mês</label>
-        <input type="month" id="id_month_filter" name="month" value="{{ month_slug }}" />
+    <div class="actions" style="margin-bottom: 16px;">
+        <button type="button" id="open-entry-modal"
+                data-open-entry
+                {% if selected_inspector %}data-target-inspector="{{ selected_inspector.pk }}"{% elif current_inspector %}data-target-inspector="{{ current_inspector.pk }}"{% endif %}
+                >Nova entrada</button>
+        <noscript>
+            <a href="{% url 'schedule:entry_create' %}?next={{ request.get_full_path|urlencode }}" class="secondary">Nova entrada</a>
+        </noscript>
+    </div>
 
-        <label for="id_inspector_filter">Inspetor</label>
-        <select name="inspector" id="id_inspector_filter">
-            <option value="">Todos</option>
-            {% for inspector_option in inspectors %}
-                <option value="{{ inspector_option.pk }}" {% if selected_inspector and inspector_option.pk == selected_inspector.pk %}selected{% endif %}>
-                    {{ inspector_option.full_name }}
-                </option>
-            {% endfor %}
-        </select>
-
-        <label for="id_sa_filter">SA</label>
-        <input type="text" name="sa" id="id_sa_filter" value="{{ sa_filter }}" placeholder="Número da SA" />
-
-        <button type="submit">Aplicar</button>
-        <a class="secondary" href="{% url 'schedule:monthly_schedule' %}">Limpar</a>
-    </form>
-
-    <table aria-label="Agenda mensal">
+    <table class="monthly-grid" aria-label="Agenda mensal">
         <thead>
             <tr>
                 <th>Seg</th>
@@ -65,19 +53,33 @@
                                         {% with entry.entry_type|lower as entry_type_class %}
                                             {% with entry.status|default_if_none:""|lower as status_class %}
                                                 <div class="entry {{ entry_type_class }} {% if status_class %}status-{{ status_class }}{% endif %}">
-                                                    <div><strong>{{ entry.get_entry_type_display }}</strong>{% if entry.entry_type == entry.ENTRY_TYPE_INSPECTION and entry.inspection_type %} · {{ entry.get_inspection_type_display }}{% endif %}</div>
-                                                    <div>Inspetor: {{ entry.inspector.full_name }}</div>
-                                                    {% if entry.sa_number %}<div>SA: {{ entry.sa_number }}</div>{% endif %}
-                                                    <div>{{ entry.content|linebreaksbr }}</div>
-                                                    {% if entry.entry_type == entry.ENTRY_TYPE_INSPECTION and entry.status %}
-                                                        <div>Status: {{ entry.get_status_display }}</div>
-                                                    {% endif %}
-                                                    {% if is_manager or current_inspector and entry.inspector_id == current_inspector.pk %}
-                                                        <div class="actions" style="margin-top: 8px;">
-                                                            <a href="{% url 'schedule:entry_update' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="secondary">Editar</a>
-                                                            <a href="{% url 'schedule:entry_delete' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="secondary">Excluir</a>
-                                                        </div>
-                                                    {% endif %}
+                                                    <div class="entry-summary">
+                                                        <div><strong>{{ entry.inspector.full_name }}</strong></div>
+                                                        {% if entry.sa_number %}<div><strong>SA:</strong> {{ entry.sa_number }}</div>{% endif %}
+                                                        <div class="entry-content">{{ entry.content|linebreaksbr }}</div>
+                                                    </div>
+                                                    <div class="entry-footer">
+                                                        <button type="button" class="entry-toggle" data-toggle-entry aria-expanded="false">Detalhes</button>
+                                                        {% if is_manager or current_inspector and entry.inspector_id == current_inspector.pk %}
+                                                            <div class="entry-icons">
+                                                                <a href="{% url 'schedule:entry_update' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button" aria-label="Editar">
+                                                                    &#9998;<span class="sr-only">Editar</span>
+                                                                </a>
+                                                                <a href="{% url 'schedule:entry_delete' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button danger" aria-label="Excluir">
+                                                                    &#10006;<span class="sr-only">Excluir</span>
+                                                                </a>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="entry-details">
+                                                        <div><strong>Tipo:</strong> {{ entry.get_entry_type_display }}</div>
+                                                        {% if entry.entry_type == entry.ENTRY_TYPE_INSPECTION %}
+                                                            {% if entry.inspection_type %}<div><strong>Modo:</strong> {{ entry.get_inspection_type_display }}</div>{% endif %}
+                                                            {% if entry.status %}<div><strong>Status:</strong> {{ entry.get_status_display }}</div>{% endif %}
+                                                        {% endif %}
+                                                        <div><strong>Inspetor:</strong> {{ entry.inspector.full_name }}</div>
+                                                        <div><strong>Data:</strong> {{ entry.date|date:"d/m/Y" }}</div>
+                                                    </div>
                                                 </div>
                                             {% endwith %}
                                         {% endwith %}
@@ -86,12 +88,10 @@
                                     <span class="empty">—</span>
                                 {% endif %}
                                 {% if is_manager or current_inspector %}
-                                    <button type="button" class="cell-action"
-                                            data-open-entry
-                                            data-target-date="{{ cell.date|date:'Y-m-d' }}"
-                                            {% if selected_inspector %}data-target-inspector="{{ selected_inspector.pk }}"{% elif current_inspector %}data-target-inspector="{{ current_inspector.pk }}"{% endif %}>
-                                        +
-                                    </button>
+                    <button type="button" class="cell-action"
+                        data-open-entry
+                        data-target-date="{{ cell.date|date:'Y-m-d' }}"
+                        {% if selected_inspector %}data-target-inspector="{{ selected_inspector.pk }}"{% elif current_inspector %}data-target-inspector="{{ current_inspector.pk }}"{% endif %} aria-label="Adicionar entrada">+</button>
                                     <noscript>
                                         <a href="{% url 'schedule:entry_create' %}?date={{ cell.date|date:'Y-m-d' }}{% if selected_inspector %}&inspector={{ selected_inspector.pk }}{% elif current_inspector %}&inspector={{ current_inspector.pk }}{% endif %}&next={{ request.get_full_path|urlencode }}" class="secondary small">Adicionar</a>
                                     </noscript>
