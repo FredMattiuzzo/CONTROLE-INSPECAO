@@ -30,7 +30,7 @@ class ScheduleEntryForm(forms.ModelForm):
         self.fields["entry_type"].label = "Tipo de entrada"
         self.fields["inspector"].label = "Inspetor"
         self.fields["date"].label = "Data"
-        self.fields["sa_number"].label = "SA"
+        self.fields["sa_number"].label = "CP"
         self.fields["content"].label = "Descrição"
         self.fields["inspection_type"].label = "Tipo de inspeção"
         self.fields["status"].label = "Status"

@@ -4,7 +4,7 @@
 
 {% block extra_head %}
 <style>
-    .monthly-grid .entry { width: min(100%, 130px); min-height: 110px; }
+    .monthly-grid .entry { width: 100%; min-height: auto; }
 </style>
 {% endblock %}
 
@@ -54,9 +54,12 @@
                                             {% with entry.status|default_if_none:""|lower as status_class %}
                                                 <div class="entry {{ entry_type_class }} {% if status_class %}status-{{ status_class }}{% endif %}">
                                                     <div class="entry-summary">
-                                                        <div><strong>{{ entry.inspector.full_name }}</strong></div>
-                                                        {% if entry.sa_number %}<div><strong>SA:</strong> {{ entry.sa_number }}</div>{% endif %}
-                                                        <div class="entry-content">{{ entry.content|linebreaksbr }}</div>
+                                                        <span class="entry-title">{{ entry.inspector.full_name }}</span>
+                                                        {% if entry.sa_number %}
+                                                            <span class="entry-meta">SA {{ entry.sa_number }}</span>
+                                                        {% else %}
+                                                            <span class="entry-meta muted">Sem SA</span>
+                                                        {% endif %}
                                                     </div>
                                                     <div class="entry-footer">
                                                         <button type="button" class="entry-toggle" data-toggle-entry aria-expanded="false">Detalhes</button>
@@ -72,6 +75,7 @@
                                                         {% endif %}
                                                     </div>
                                                     <div class="entry-details">
+                                                        {% if entry.sa_number %}<div><strong>SA:</strong> {{ entry.sa_number }}</div>{% endif %}
                                                         <div><strong>Tipo:</strong> {{ entry.get_entry_type_display }}</div>
                                                         {% if entry.entry_type == entry.ENTRY_TYPE_INSPECTION %}
                                                             {% if entry.inspection_type %}<div><strong>Modo:</strong> {{ entry.get_inspection_type_display }}</div>{% endif %}
@@ -79,6 +83,11 @@
                                                         {% endif %}
                                                         <div><strong>Inspetor:</strong> {{ entry.inspector.full_name }}</div>
                                                         <div><strong>Data:</strong> {{ entry.date|date:"d/m/Y" }}</div>
+                                                        {% if entry.content %}
+                                                            <div><strong>Detalhes:</strong>
+                                                                <div class="entry-note">{{ entry.content|linebreaksbr }}</div>
+                                                            </div>
+                                                        {% endif %}
                                                     </div>
                                                 </div>
                                             {% endwith %}

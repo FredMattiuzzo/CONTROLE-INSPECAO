@@ -5,30 +5,48 @@
     <title>{% block title %}SAI{% endblock %}</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f6fa; color: #1f2933; }
-    header { background: #194E83; color: #fff; padding: 16px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
-    header h1 { margin: 0; font-size: 20px; flex: 1; }
-    nav { display: flex; gap: 12px; flex-wrap: wrap; }
-    nav a { color: #fff; text-decoration: none; font-weight: bold; }
-    nav a.active { text-decoration: underline; }
-    .user-badge { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 14px; }
-    .user-badge span { background: rgba(255, 255, 255, 0.18); padding: 6px 12px; border-radius: 999px; }
-    .user-badge a { color: #fff; text-decoration: none; font-weight: bold; }
+        header { background: #194E83; color: #fff; padding: 16px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+        header h1 { margin: 0; font-size: 20px; flex: 1; }
+        nav { display: flex; gap: 12px; flex-wrap: wrap; }
+        nav a { color: #fff; text-decoration: none; font-weight: bold; }
+        nav a.active { text-decoration: underline; }
+        .user-badge { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 14px; }
+        .user-badge span { background: rgba(255, 255, 255, 0.18); padding: 6px 12px; border-radius: 999px; }
+        .user-badge a { color: #fff; text-decoration: none; font-weight: bold; }
         main { padding: 24px; }
         .container { background: #fff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); padding: 24px; }
         .actions { margin: 16px 0; display: flex; gap: 12px; flex-wrap: wrap; }
         .actions a, .actions button { background: #194E83; color: #fff; padding: 8px 16px; border-radius: 4px; border: none; text-decoration: none; cursor: pointer; }
         .actions a.secondary { background: #64748b; }
-    a.secondary { display: inline-block; background: #A6A8AB; color: #fff; padding: 8px 16px; border-radius: 4px; text-decoration: none; }
+        a.secondary { display: inline-block; background: #A6A8AB; color: #fff; padding: 8px 16px; border-radius: 4px; text-decoration: none; }
         table { width: 100%; border-collapse: collapse; }
-    th, td { border: 1px solid #d9e2ec; padding: 8px; vertical-align: top; }
-    td.entry-cell { position: relative; padding-bottom: 36px; }
+        th, td { border: 1px solid #d9e2ec; padding: 8px; vertical-align: top; }
+        td.entry-cell { position: relative; padding-bottom: 36px; height: 120px; vertical-align: top; gap: 8px;}
         th { background: #f0f4f8; text-align: left; }
-    .entry { border-radius: 4px; padding: 6px 8px; margin-bottom: 6px; font-size: 13px; line-height: 1.4; border: 1px solid transparent; }
-    .entry.inspection { background: #e0f2fe; border-color: #90cdf4; }
-    .entry.absence { background: #ffe8d9; border-color: #f6ad55; }
-    .entry.status-agendada { border-color: #1f6feb; }
-    .entry.status-concluida { background: #dcfce7; border-color: #16a34a; color: #14532d; }
-    .entry.status-reprovada { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
+        .entry { border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; font-size: 13px; line-height: 1.4; border: 1px solid transparent; display: flex; flex-direction: column; gap: 6px;width: fit-content; }
+        .entry.inspection { background: #e0f2fe; border-color: #90cdf4; }
+        .entry.absence { background: #ffe8d9; border-color: #f6ad55; }
+        .entry.status-agendada { border-color: #1f6feb;}
+        .entry.status-concluida { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+        .entry.status-reprovada { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
+        .entry-summary { display: flex; flex-direction: column; gap: 2px; }
+        .entry-title { font-weight: 600; font-size: 13px; color: #0f172a; }
+        .entry-meta { font-size: 12px; color: #334155; }
+        .entry-meta.muted { color: #64748b; font-style: italic; }
+        .entry-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .entry-toggle { background: none; border: none; color: #1f6feb; padding: 0; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+        .entry-toggle::after { content: "▼"; font-size: 10px; transition: transform 0.2s ease-in-out; }
+        .entry.expanded .entry-toggle::after { transform: rotate(-180deg); }
+        .entry-icons { display: flex; gap: 4px; }
+        .icon-button { width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; text-decoration: none; color: inherit; background: rgba(15, 23, 42, 0.08); border: 1px solid transparent; font-size: 14px; }
+        .icon-button:hover { background: rgba(15, 23, 42, 0.15); }
+        .icon-button.danger { color: #b91c1c; background: rgba(239, 68, 68, 0.12); }
+        .icon-button.danger:hover { background: rgba(239, 68, 68, 0.2); }
+        .entry-details { display: none; border-top: 1px solid rgba(15, 23, 42, 0.12); padding-top: 6px; font-size: 12px; color: #1f2937; }
+        .entry.expanded .entry-details { display: block; }
+        .entry-details div { margin-bottom: 4px; }
+        .entry-details div:last-child { margin-bottom: 0; }
+        .entry-note { margin-top: 2px; white-space: pre-wrap; }
         form.inline { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
         form.inline label { font-weight: bold; }
         form.inline select, form.inline input { padding: 6px 8px; border-radius: 4px; border: 1px solid #cbd5e1; }
@@ -46,18 +64,15 @@
         .field-group label { font-weight: bold; display: block; margin-bottom: 6px; }
         .field-group input, .field-group select, .field-group textarea { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #cbd5e1; }
         .field-errors { margin-top: 4px; color: #dc2626; font-size: 13px; }
-    .cell-action { position: absolute; right: 8px; bottom: 8px; background: #2563eb; color: #fff; border: none; border-radius: 6px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; line-height: 1; box-shadow: 0 2px 4px rgba(15, 23, 42, 0.18); }
-    .cell-action:hover { background: #1d4ed8; }
+        .cell-action { position: absolute; right: 8px; bottom: 8px; background: #2563eb; color: #fff; border: none; border-radius: 6px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; line-height: 1; box-shadow: 0 2px 4px rgba(15, 23, 42, 0.18); }
+        .cell-action:hover { background: #1d4ed8; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
 <body>
     <header>
         <h1>SAI - Sistema de Agendamento de Inspeções</h1>
-        <nav>
-            <a href="{% url 'schedule:weekly_schedule' %}" class="{% if request.resolver_match.url_name == 'weekly_schedule' %}active{% endif %}">Semanal</a>
-            <a href="{% url 'schedule:monthly_schedule' %}" class="{% if request.resolver_match.url_name == 'monthly_schedule' %}active{% endif %}">Mensal</a>
-        </nav>
         <div class="user-badge">
             {% if request.user.is_authenticated %}
                 <span>{{ request.user.get_username }}</span>
@@ -71,4 +86,26 @@
         {% block content %}{% endblock %}
     </main>
 </body>
+<script>
+(function () {
+    function bindEntryToggles(scope) {
+        var entries = (scope || document).querySelectorAll('[data-toggle-entry]');
+        entries.forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                var entry = button.closest('.entry');
+                if (!entry) { return; }
+                var isExpanded = entry.classList.toggle('expanded');
+                button.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+            });
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { bindEntryToggles(document); });
+    } else {
+        bindEntryToggles(document);
+    }
+})();
+</script>
 </html>

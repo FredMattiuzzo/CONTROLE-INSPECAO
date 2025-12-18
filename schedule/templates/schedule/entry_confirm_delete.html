@@ -13,7 +13,7 @@
     <div class="message">
         <strong>{{ object.get_entry_type_display }}</strong> em {{ object.date|date:"d/m/Y" }}<br>
         Inspetor: {{ object.inspector.full_name }}<br>
-        {% if object.sa_number %}SA: {{ object.sa_number }}<br>{% endif %}
+        {% if object.sa_number %}CP: {{ object.sa_number }}<br>{% endif %}
         {{ object.content|linebreaksbr }}
     </div>
 

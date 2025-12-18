@@ -4,9 +4,11 @@ from django.db import models
 class User(models.Model):
     ROLE_INSPECTOR = "INSPECTOR"
     ROLE_MANAGER = "MANAGER"
+    ROLE_NORMALUSER = "NORMAL-USER"
     ROLE_CHOICES = (
         (ROLE_INSPECTOR, "Inspetor"),
         (ROLE_MANAGER, "Gestor"),
+        (ROLE_NORMALUSER, "Agregador"),
     )
 
     username = models.CharField(max_length=150, unique=True)
