@@ -48,8 +48,10 @@
                                                     <span class="entry-meta">{{ entry.content }}</span>
                                                     {% if entry.sa_number %}
                                                         <span class="entry-meta">CP: {{ entry.sa_number }}</span>
+                                                    {% elif not entry.sa_number and ENTRY_TYPE_INSPECTION == 'Ausência' %}
+                                                        <span class="entry-meta muted">Ausência </span>
                                                     {% else %}
-                                                        <span class="entry-meta muted">Sem CP/span>
+                                                        <span class="entry-meta muted">Sem CP</span>    
                                                     {% endif %}
                                                 </div>
                                                 <div class="entry-footer">

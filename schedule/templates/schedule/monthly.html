@@ -52,13 +52,15 @@
                                     {% for entry in cell.entries %}
                                         {% with entry.entry_type|lower as entry_type_class %}
                                             {% with entry.status|default_if_none:""|lower as status_class %}
-                                                <div class="entry {{ entry_type_class }} {% if status_class %}status-{{ status_class }}{% endif %}">
+                                                <div class="entry {{ entry_type_class }} {% if status_class %}status-{{ status_class }}-mensal {% endif %} {% if status_class == 'absence' %}-mensal {% endif %}">
                                                     <div class="entry-summary">
                                                         <span class="entry-title">{{ entry.inspector.full_name }}</span>
                                                         {% if entry.sa_number %}
-                                                            <span class="entry-meta">SA {{ entry.sa_number }}</span>
+                                                            <span class="entry-meta">CP: {{ entry.sa_number }}</span>
+                                                        {% elif not entry.sa_number and entry_type_class == 'Absence' %}
+                                                            <span class="entry-meta muted">Ausência </span>
                                                         {% else %}
-                                                            <span class="entry-meta muted">Sem SA</span>
+                                                            <span class="entry-meta muted">Sem CP</span>    
                                                         {% endif %}
                                                     </div>
                                                     <div class="entry-footer">
