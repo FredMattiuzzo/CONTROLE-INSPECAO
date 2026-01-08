@@ -1,0 +1,51 @@
+{% with manage=can_manage %}
+<div class="entry report {{ entry_type_class }} {% if status_class %}status-{{ status_class }}{% endif %}"
+     draggable="true"
+     data-entry-id="{{ entry.pk }}"
+     data-entry-date="{{ entry.date|date:'Y-m-d' }}"
+     data-entry-inspector="{{ entry.inspector_id }}">
+    {% if manage %}
+        <a href="{% url 'schedule:entry_delete' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button delete" aria-label="Excluir">
+            &#10006;<span class="sr-only">Excluir</span>
+        </a>
+    {% endif %}
+    <div class="entry-header">
+        <div class="entry-title-row">
+            <span class="entry-title">{{ entry.get_entry_type_display }}</span>
+        </div>
+    </div>
+    <div class="entry-summary">
+        {% if entry.content %}
+            <span class="entry-meta">{{ entry.content }}</span>
+        {% else %}
+            <span class="entry-meta muted">Sem descrição</span>
+        {% endif %}
+    </div>
+    <div class="entry-footer">
+        <button type="button" class="entry-toggle" data-toggle-entry aria-expanded="false">
+            <span aria-hidden="true">▼</span>
+            <span class="sr-only">Detalhes</span>
+        </button>
+        <div class="entry-footer-meta" style="display:flex; gap:6px; align-items:flex-end;">
+            {% if entry.sa_number %}
+                <span class="entry-chip">CP {{ entry.sa_number }}</span>
+            {% endif %}
+        </div>
+    </div>
+    {% if manage %}
+        <a href="{% url 'schedule:entry_update' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button edit" aria-label="Editar">
+            &#9998;<span class="sr-only">Editar</span>
+        </a>
+    {% endif %}
+    <div class="entry-details report-details">
+        {% if entry.sa_number %}<div><strong>CP:</strong> {{ entry.sa_number }}</div>{% endif %}
+        <div><strong>Inspetor:</strong> {{ entry.inspector.full_name }}</div>
+        <div><strong>Data:</strong> {{ entry.date|date:"d/m/Y" }}</div>
+        {% if entry.content %}
+            <div><strong>Resumo:</strong>
+                <div class="entry-note">{{ entry.content|linebreaksbr }}</div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endwith %}

@@ -142,7 +142,7 @@ class ScheduleEntryForm(forms.ModelForm):
         entry_type = instance.entry_type
         status = instance.status
 
-        if entry_type == ScheduleEntry.ENTRY_TYPE_ABSENCE:
+        if entry_type in {ScheduleEntry.ENTRY_TYPE_ABSENCE, ScheduleEntry.ENTRY_TYPE_REPORT}:
             instance.inspection_type = None
             instance.status = None
             instance.concluded_by = None

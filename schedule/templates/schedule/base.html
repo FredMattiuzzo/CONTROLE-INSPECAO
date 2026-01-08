@@ -20,31 +20,50 @@
         .actions a.secondary { background: #64748b; }
         a.secondary { display: inline-block; background: #A6A8AB; color: #fff; padding: 8px 16px; border-radius: 4px; text-decoration: none; }
         table { width: 100%; border-collapse: collapse; }
+        .weekly-table { table-layout: fixed; }
+        .weekly-table th:first-child, .weekly-table td:first-child { width: 180px; }
+        .weekly-table th:not(:first-child), .weekly-table td:not(:first-child) { width: calc((100% - 180px) / 5); }
+        .weekly-table th, .weekly-table td { word-wrap: break-word; }
         th, td { border: 1px solid #d9e2ec; padding: 8px; vertical-align: top; }
-        td.entry-cell { position: relative; padding-bottom: 36px; height: 120px; vertical-align: top; gap: 20px;}
+        td.entry-cell { position: relative; padding-bottom: 30px; height: 180px; vertical-align: top; gap: 16px; }
         th { background: #f0f4f8; text-align: left; }
-        .entry { border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; font-size: 13px; line-height: 1.4; border: 1px solid transparent; display: flex; flex-direction: column; gap: 6px;width: fit-content; }
+        .entry { position: relative; border-radius: 6px; padding: 10px 26px 26px 10px; margin-bottom: 6px; font-size: 12px; line-height: 1.35; border: 1px solid transparent; display: flex; flex-direction: column; gap: 6px; width: 100%; box-sizing: border-box; min-height: 120px; }
         .entry.inspection { background: #e0f2fe; border-color: #90cdf4; }
-        .entry.absence { background: #ffe8d9; border-color: #f6ad55; padding: 2px 2px }
+        .entry.absence { background: #ffe8d9; border-color: #f6ad55; }
+        .entry.report { background: #fef3c7; border-color: #fbbf24; color: #92400e; }
+        .entry.report .entry-title { color: #92400e; }
         .entry.status-agendada { border-color: #1f6feb;}
         .entry.status-concluida { background: #dcfce7; border-color: #16a34a; color: #14532d; }
         .entry.status-reprovada { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
         .entry.status-agendada-mensal { border-color: #1f6feb; padding: 2px}
         .entry.status-concluida-mensal { background: #dcfce7; border-color: #16a34a; color: #14532d; padding: 2px}
         .entry.status-reprovada-mensal { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; padding: 2px}
-        .entry-summary { display: flex; flex-direction: column; gap: 2px; }
-        .entry-title { font-weight: 600; font-size: 13px; color: #0f172a; }
-        .entry-meta { font-size: 12px; color: #334155; }
+        .entry-header { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+        .entry-title-row { display: flex; align-items: center; gap: 6px; }
+        .entry-summary { display: flex; flex-direction: column; gap: 4px; }
+        .entry-title { font-weight: 600; font-size: 12px; color: #194E83; }
+        .entry-meta { font-size: 11px; color: #334155; }
         .entry-meta.muted { color: #64748b; font-style: italic; }
-        .entry-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-        .entry-toggle { background: none; border: none; color: #1f6feb; padding: 0; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
-        .entry-toggle::after { content: "▼"; font-size: 10px; transition: transform 0.2s ease-in-out; }
-        .entry.expanded .entry-toggle::after { transform: rotate(-180deg); }
+        .entry-footer { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 14px; }
+        .entry-toggle { background: none; border: none; color: #1f6feb; padding: 0; font-size: 0; cursor: pointer; width: 20px; height: 20px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; }
+        .entry-toggle span[aria-hidden="true"] { font-size: 10px; font-weight: 600; transition: transform 0.2s ease-in-out; }
+        .entry-toggle::after { display: none; }
+        .entry.expanded .entry-toggle span[aria-hidden="true"] { transform: rotate(-180deg); }
         .entry-icons { display: flex; gap: 4px; }
-        .icon-button { width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; text-decoration: none; color: inherit; background: rgba(15, 23, 42, 0.08); border: 1px solid transparent; font-size: 14px; }
+        .icon-button { width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; text-decoration: none; color: inherit; background: rgba(15, 23, 42, 0.08); border: 1px solid transparent; font-size: 12px; }
         .icon-button:hover { background: rgba(15, 23, 42, 0.15); }
-        .icon-button.danger { color: #b91c1c; background: rgba(239, 68, 68, 0.12); }
-        .icon-button.danger:hover { background: rgba(239, 68, 68, 0.2); }
+        .icon-button.delete { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; color: #4b5563; background: rgba(107, 114, 128, 0.12); }
+        .icon-button.delete:hover { background: rgba(107, 114, 128, 0.2); }
+        .icon-button.edit { position: absolute; bottom: 4px; right: 4px; width: 20px; height: 20px; }
+        .report-header { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+        .entry-chip { background: rgba(15, 23, 42, 0.08); color: #0f172a; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; border: 1px solid rgba(15, 23, 42, 0.12); }
+        .entry.report .entry-chip { background: rgba(146, 64, 14, 0.12); color: #92400e; border-color: rgba(146, 64, 14, 0.18); }
+        .entry.absence .entry-chip { background: rgba(180, 83, 9, 0.10); color: #92400e; border-color: rgba(180, 83, 9, 0.2); }
+        .entry-chip.status-agendada { background: #b4d5ff; color: #1d4ed8; border-color: #1d4ed8; }
+        .entry-chip.status-concluida { background: #c0ffde; color: #047857; border-color: #047857; }
+        .entry-chip.status-reprovada { background: #fdc4c4; color: #b91c1c; border-color: #b91c1c; }
+        .report-summary { gap: 4px; }
+        .report-footer { justify-content: flex-start; }
         .entry-details { display: none; border-top: 1px solid rgba(15, 23, 42, 0.12); padding-top: 6px; font-size: 12px; color: #1f2937; }
         .entry.expanded .entry-details { display: block; }
         .entry-details div { margin-bottom: 4px; }

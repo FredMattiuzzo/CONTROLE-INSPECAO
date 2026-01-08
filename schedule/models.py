@@ -31,9 +31,11 @@ class InspectorProfile(models.Model):
 class ScheduleEntry(models.Model):
     ENTRY_TYPE_INSPECTION = "INSPECTION"
     ENTRY_TYPE_ABSENCE = "ABSENCE"
+    ENTRY_TYPE_REPORT = "REPORT"
     ENTRY_TYPE_CHOICES = (
         (ENTRY_TYPE_INSPECTION, "Inspeção"),
         (ENTRY_TYPE_ABSENCE, "Ausência"),
+        (ENTRY_TYPE_REPORT, "Relatório"),
     )
 
     INSPECTION_TYPE_INTERNAL = "INTERNAL"
@@ -65,7 +67,7 @@ class ScheduleEntry(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        if self.entry_type == self.ENTRY_TYPE_ABSENCE:
+        if self.entry_type in {self.ENTRY_TYPE_ABSENCE, self.ENTRY_TYPE_REPORT}:
             self.inspection_type = None
             self.status = None
             self.concluded_by = None

@@ -127,10 +127,10 @@ class WeeklyScheduleView(ScheduleFilterMixin, TemplateView):
         return start + timedelta(days=self.get_week_offset() * 7)
 
     def get_week_days(self, start_date):
-        return [start_date + timedelta(days=delta) for delta in range(7)]
+        return [start_date + timedelta(days=delta) for delta in range(5)]
 
     def get_entries_for_week(self, start_date):
-        end_date = start_date + timedelta(days=6)
+        end_date = start_date + timedelta(days=4)
         queryset = ScheduleEntry.objects.select_related("inspector", "inspector__user", "concluded_by")
         queryset = queryset.filter(date__range=(start_date, end_date))
         inspector = None
