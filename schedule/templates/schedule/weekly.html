@@ -42,86 +42,88 @@
                             data-drop-date="{{ day|date:'Y-m-d' }}"
                             data-drop-inspector="{{ row.inspector.pk }}">
                             {% if entries %}
-                                {% for entry in entries %}
-                                    {% with entry.entry_type|lower as entry_type_class %}
-                                        {% with entry.status|default_if_none:""|lower as status_class %}
-                                            {% if entry.entry_type == entry.ENTRY_TYPE_REPORT %}
-                                                {% with can_manage=is_manager %}
-                                                    {% if not can_manage and current_inspector and entry.inspector_id == current_inspector.pk %}
-                                                        {% with can_manage=True %}
+                                <div class="entry-stack">
+                                    {% for entry in entries %}
+                                        {% with entry.entry_type|lower as entry_type_class %}
+                                            {% with entry.status|default_if_none:""|lower as status_class %}
+                                                {% if entry.entry_type == entry.ENTRY_TYPE_REPORT %}
+                                                    {% with can_manage=is_manager %}
+                                                        {% if not can_manage and current_inspector and entry.inspector_id == current_inspector.pk %}
+                                                            {% with can_manage=True %}
+                                                                {% include "schedule/_entry_report.html" with entry=entry status_class=status_class entry_type_class=entry_type_class can_manage=can_manage %}
+                                                            {% endwith %}
+                                                        {% else %}
                                                             {% include "schedule/_entry_report.html" with entry=entry status_class=status_class entry_type_class=entry_type_class can_manage=can_manage %}
-                                                        {% endwith %}
-                                                    {% else %}
-                                                        {% include "schedule/_entry_report.html" with entry=entry status_class=status_class entry_type_class=entry_type_class can_manage=can_manage %}
-                                                    {% endif %}
-                                                {% endwith %}
-                                            {% else %}
-                                                <div class="entry {{ entry_type_class }} {% if status_class %}status-{{ status_class }}{% endif %}"
-                                                     draggable="true"
-                                                     data-entry-id="{{ entry.pk }}"
-                                                     data-entry-date="{{ entry.date|date:'Y-m-d' }}"
-                                                       data-entry-inspector="{{ entry.inspector_id }}">
-                                                    {% if is_manager or current_inspector and entry.inspector_id == current_inspector.pk %}
-                                                        <a href="{% url 'schedule:entry_delete' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button delete" aria-label="Excluir">
-                                                            &#10006;<span class="sr-only">Excluir</span>
-                                                        </a>
-                                                    {% endif %}
-                                                    <div class="entry-header">
-                                                        <div class="entry-title-row">
-                                                            <span class="entry-title">{{ entry.get_entry_type_display }}</span>
-                                                            {% if entry.entry_type == entry.ENTRY_TYPE_INSPECTION and entry.status %}
-                                                                <span class="entry-chip status-{{ entry.status|lower }}">{{ entry.get_status_display }}</span>
-                                                            {% endif %}
-                                                        </div>
-                                                    </div>
-                                                    <div class="entry-summary">
-                                                        {% if entry.content %}
-                                                            <span class="entry-meta">{{ entry.content }}</span>
                                                         {% endif %}
-                                                        {% if not entry.sa_number %}
-                                                            {% if entry.entry_type == entry.ENTRY_TYPE_ABSENCE %}
-                                                                <span class="entry-meta muted">Ausência</span>
-                                                            {% else %}
-                                                                <span class="entry-meta muted">Sem CP</span>
-                                                            {% endif %}
+                                                    {% endwith %}
+                                                {% else %}
+                                                    <div class="entry {{ entry_type_class }} {% if status_class %}status-{{ status_class }}{% endif %}"
+                                                         draggable="true"
+                                                         data-entry-id="{{ entry.pk }}"
+                                                         data-entry-date="{{ entry.date|date:'Y-m-d' }}"
+                                                           data-entry-inspector="{{ entry.inspector_id }}">
+                                                        {% if is_manager or current_inspector and entry.inspector_id == current_inspector.pk %}
+                                                            <a href="{% url 'schedule:entry_delete' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button delete" aria-label="Excluir">
+                                                                &#10006;<span class="sr-only">Excluir</span>
+                                                            </a>
                                                         {% endif %}
-                                                    </div>
-                                                    <div class="entry-footer">
-                                                        <button type="button" class="entry-toggle" data-toggle-entry aria-expanded="false">
-                                                            <span aria-hidden="true">▼</span>
-                                                            <span class="sr-only">Detalhes</span>
-                                                        </button>
-                                                        <div class="entry-footer-meta" style="display:flex; gap:6px; align-items:flex-end;">
-                                                            {% if entry.sa_number %}
-                                                                <span class="entry-chip">CP {{ entry.sa_number }}</span>
-                                                            {% endif %}
-                                                        </div>
-                                                    </div>
-                                                    {% if is_manager or current_inspector and entry.inspector_id == current_inspector.pk %}
-                                                        <a href="{% url 'schedule:entry_update' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button edit" aria-label="Editar">
-                                                            &#9998;<span class="sr-only">Editar</span>
-                                                        </a>
-                                                    {% endif %}
-                                                    <div class="entry-details">
-                                                        {% if entry.sa_number %}<div><strong>CP:</strong> {{ entry.sa_number }}</div>{% endif %}
-                                                        <div><strong>Tipo:</strong> {{ entry.get_entry_type_display }}</div>
-                                                        {% if entry.entry_type == entry.ENTRY_TYPE_INSPECTION %}
-                                                            {% if entry.inspection_type %}<div><strong>Modo:</strong> {{ entry.get_inspection_type_display }}</div>{% endif %}
-                                                            {% if entry.status %}<div><strong>Status:</strong> {{ entry.get_status_display }}</div>{% endif %}
-                                                        {% endif %}
-                                                        <div><strong>Inspetor:</strong> {{ entry.inspector.full_name }}</div>
-                                                        <div><strong>Data:</strong> {{ entry.date|date:"d/m/Y" }}</div>
-                                                        {% if entry.content %}
-                                                            <div><strong>Detalhes:</strong>
-                                                                <div class="entry-note">{{ entry.content|linebreaksbr }}</div>
+                                                        <div class="entry-header">
+                                                            <div class="entry-title-row">
+                                                                <span class="entry-title">{{ entry.get_entry_type_display }}</span>
+                                                                {% if entry.entry_type == entry.ENTRY_TYPE_INSPECTION and entry.status %}
+                                                                    <span class="entry-chip status-{{ entry.status|lower }}">{{ entry.get_status_display }}</span>
+                                                                {% endif %}
                                                             </div>
+                                                        </div>
+                                                        <div class="entry-summary">
+                                                            {% if entry.content %}
+                                                                <span class="entry-meta">{{ entry.content }}</span>
+                                                            {% endif %}
+                                                            {% if not entry.sa_number %}
+                                                                {% if entry.entry_type == entry.ENTRY_TYPE_ABSENCE %}
+                                                                    <span class="entry-meta muted">Ausência</span>
+                                                                {% else %}
+                                                                    <span class="entry-meta muted">Sem CP</span>
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="entry-footer">
+                                                            <button type="button" class="entry-toggle" data-toggle-entry aria-expanded="false">
+                                                                <span aria-hidden="true">▼</span>
+                                                                <span class="sr-only">Detalhes</span>
+                                                            </button>
+                                                            <div class="entry-footer-meta" style="display:flex; gap:6px; align-items:flex-end;">
+                                                                {% if entry.sa_number %}
+                                                                    <span class="entry-chip">CP {{ entry.sa_number }}</span>
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                        {% if is_manager or current_inspector and entry.inspector_id == current_inspector.pk %}
+                                                            <a href="{% url 'schedule:entry_update' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button edit" aria-label="Editar">
+                                                                &#9998;<span class="sr-only">Editar</span>
+                                                            </a>
                                                         {% endif %}
+                                                        <div class="entry-details">
+                                                            {% if entry.sa_number %}<div><strong>CP:</strong> {{ entry.sa_number }}</div>{% endif %}
+                                                            <div><strong>Tipo:</strong> {{ entry.get_entry_type_display }}</div>
+                                                            {% if entry.entry_type == entry.ENTRY_TYPE_INSPECTION %}
+                                                                {% if entry.inspection_type %}<div><strong>Modo:</strong> {{ entry.get_inspection_type_display }}</div>{% endif %}
+                                                                {% if entry.status %}<div><strong>Status:</strong> {{ entry.get_status_display }}</div>{% endif %}
+                                                            {% endif %}
+                                                            <div><strong>Inspetor:</strong> {{ entry.inspector.full_name }}</div>
+                                                            <div><strong>Data:</strong> {{ entry.date|date:"d/m/Y" }}</div>
+                                                            {% if entry.content %}
+                                                                <div><strong>Detalhes:</strong>
+                                                                    <div class="entry-note">{{ entry.content|linebreaksbr }}</div>
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            {% endif %}
+                                                {% endif %}
+                                            {% endwith %}
                                         {% endwith %}
-                                    {% endwith %}
-                                {% endfor %}
+                                    {% endfor %}
+                                </div>
                             {% else %}
                                 <span class="empty">—</span>
                             {% endif %}
