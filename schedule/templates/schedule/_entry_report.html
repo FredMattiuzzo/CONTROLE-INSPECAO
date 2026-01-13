@@ -3,7 +3,8 @@
      draggable="true"
      data-entry-id="{{ entry.pk }}"
      data-entry-date="{{ entry.date|date:'Y-m-d' }}"
-     data-entry-inspector="{{ entry.inspector_id }}">
+    data-entry-inspector="{{ entry.inspector_id }}"
+    data-move-url="{% url 'schedule:entry_move' entry.pk %}">
     {% if manage %}
         <a href="{% url 'schedule:entry_delete' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button delete" aria-label="Excluir">
             &#10006;<span class="sr-only">Excluir</span>

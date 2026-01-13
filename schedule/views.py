@@ -1,11 +1,15 @@
+import json
 from calendar import Calendar, monthrange
 from collections import defaultdict
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.views import View
 from django.views.generic import CreateView, DeleteView, TemplateView, UpdateView
 
 from .forms import ScheduleEntryForm
@@ -187,6 +191,45 @@ class WeeklyScheduleView(ScheduleFilterMixin, TemplateView):
             }
         )
         return context
+
+
+class ScheduleEntryMoveView(ScheduleUserMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        entry = get_object_or_404(
+            ScheduleEntry.objects.select_related("inspector"), pk=pk
+        )
+
+        try:
+            payload = json.loads(request.body.decode("utf-8"))
+        except (TypeError, ValueError):
+            return JsonResponse({"error": "Dados inválidos."}, status=400)
+
+        target_date = payload.get("date")
+        target_inspector_id = payload.get("inspector_id")
+        if not target_date or not target_inspector_id:
+            return JsonResponse({"error": "Data e inspetor são obrigatórios."}, status=400)
+
+        try:
+            new_date = datetime.strptime(target_date, "%Y-%m-%d").date()
+        except ValueError:
+            return JsonResponse({"error": "Formato de data inválido."}, status=400)
+
+        target_inspector = get_object_or_404(
+            InspectorProfile.objects.filter(is_active=True), pk=target_inspector_id
+        )
+
+        if not self.is_manager():
+            inspector_profile = self.get_inspector_profile()
+            if not inspector_profile or entry.inspector_id != inspector_profile.pk:
+                return JsonResponse({"error": "Sem permissão para mover esta entrada."}, status=403)
+            if target_inspector.pk != inspector_profile.pk:
+                return JsonResponse({"error": "Só é possível mover para a sua própria linha."}, status=403)
+
+        entry.inspector = target_inspector
+        entry.date = new_date
+        entry.save()
+
+        return JsonResponse({"ok": True, "date": entry.date.isoformat(), "inspector_id": entry.inspector_id})
 
 
 class MonthlyScheduleView(ScheduleFilterMixin, TemplateView):

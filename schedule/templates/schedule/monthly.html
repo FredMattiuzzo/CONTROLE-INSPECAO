@@ -49,7 +49,7 @@
                             {% if cell.is_current_month %}
                                 data-drop-enabled="true"
                                 data-drop-date="{{ cell.date|date:'Y-m-d' }}"
-                                {% if selected_inspector %}data-drop-inspector="{{ selected_inspector.pk }}"{% elif current_inspector %}data-drop-inspector="{{ current_inspector.pk }}"{% endif %}
+                                {% if selected_inspector %}data-drop-inspector="{{ selected_inspector.pk }}" data-drop-inspector-name="{{ selected_inspector.full_name }}"{% elif current_inspector %}data-drop-inspector="{{ current_inspector.pk }}" data-drop-inspector-name="{{ current_inspector.full_name }}"{% endif %}
                             {% endif %}>
                             <div><strong>{{ cell.date|date:"d/m" }}</strong></div>
                             {% if cell.is_current_month %}
@@ -73,7 +73,8 @@
                                                              draggable="true"
                                                              data-entry-id="{{ entry.pk }}"
                                                              data-entry-date="{{ entry.date|date:'Y-m-d' }}"
-                                                             data-entry-inspector="{{ entry.inspector_id }}">
+                                                             data-entry-inspector="{{ entry.inspector_id }}"
+                                                             data-move-url="{% url 'schedule:entry_move' entry.pk %}">
                                                             {% if is_manager or current_inspector and entry.inspector_id == current_inspector.pk %}
                                                                 <a href="{% url 'schedule:entry_delete' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button delete" aria-label="Excluir">
                                                                     &#10006;<span class="sr-only">Excluir</span>

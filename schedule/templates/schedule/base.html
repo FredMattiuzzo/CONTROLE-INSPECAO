@@ -26,49 +26,57 @@
         .weekly-table th:not(:first-child), .weekly-table td:not(:first-child) { width: calc((100% - 180px) / 5); }
         .weekly-table th, .weekly-table td { word-wrap: break-word; }
         .weekly-table td:first-child strong { display: block; text-align: center; font-size: 15px; }
-        .entry-stack { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; }
-        .entry-stack > .entry { flex: 1 1 calc(50% - 8px); max-width: calc(50% - 8px); width: auto; margin: 0; }
-        .entry-stack > .entry:last-child:nth-child(odd),
-        .entry-stack > .entry:only-child { flex-basis: 100%; max-width: 100%; }
+        .entry-stack { display: grid; gap: 12px; width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
+        /* 1 item ocupa toda a largura */
+        .entry-stack.stack-1 > * { grid-column: 1 / -1; }
+        /* 2 itens: duas colunas */
+        .entry-stack.stack-2 > * { grid-column: auto; }
+        /* 3 itens: dois em cima, terceiro na linha inteira abaixo */
+        .entry-stack.stack-3 > :nth-child(3) { grid-column: 1 / -1; }
+        /* 4 itens: duas colunas, duas linhas */
+        .entry-stack.stack-4 > * { grid-column: auto; }
+        /* 5+ itens: mantém duas colunas */
+        .entry-stack:not(.stack-1):not(.stack-2):not(.stack-3):not(.stack-4) > * { grid-column: auto; }
+        .entry-stack > .entry { margin: 0; width: 100%; }
         th, td { border: 1px solid #d9e2ec; padding: 8px; vertical-align: top; }
-        td.entry-cell { position: relative; padding-bottom: 30px; height: 180px; vertical-align: top; gap: 16px; }
+        td.entry-cell { position: relative; padding: 12px 8px 42px 8px; min-height: 220px; vertical-align: top; }
         th { background: #f0f4f8; text-align: left; }
-        .entry { position: relative; border-radius: 6px; padding: 12px 28px 28px 12px; margin-bottom: 6px; font-size: 13px; line-height: 1.45; border: 1px solid transparent; display: flex; flex-direction: column; gap: 8px; width: 100%; box-sizing: border-box; min-height: 120px; }
-        .entry-stack > .entry { width: auto; margin-bottom: 0; }
+        .entry { position: relative; border-radius: 8px; padding: 12px 28px 28px 12px; margin-bottom: 0; font-size: 14px; line-height: 1.5; border: 2px solid; display: flex; flex-direction: column; gap: 8px; width: 100%; box-sizing: border-box; min-height: 145px; }
         .entry.inspection { background: #e0f2fe; border-color: #90cdf4; }
         .entry.absence { background: #ffe8d9; border-color: #f6ad55; }
         .entry.report { background: #fef3c7; border-color: #fbbf24; color: #92400e; }
         .entry.report .entry-title { color: #92400e; }
-        .entry.status-agendada { border-color: #1f6feb;}
+        .entry.status-agendada { border-color: #3b82f6; }
         .entry.status-concluida { background: #dcfce7; border-color: #16a34a; color: #14532d; }
         .entry.status-reprovada { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
-        .entry.status-agendada-mensal { border-color: #1f6feb; padding: 2px}
-        .entry.status-concluida-mensal { background: #dcfce7; border-color: #16a34a; color: #14532d; padding: 2px}
-        .entry.status-reprovada-mensal { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; padding: 2px}
+        .entry.status-agendada-mensal { border-color: #3b82f6; }
+        .entry.status-concluida-mensal { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+        .entry.status-reprovada-mensal { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
         .entry-header { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-        .entry-title-row { display: flex; align-items: center; gap: 6px; }
-        .entry-summary { display: flex; flex-direction: column; gap: 4px; }
-        .entry-title { font-weight: 700; font-size: 13px; color: #194E83; }
-        .entry-meta { font-size: 12px; color: #334155; }
+        .entry-title-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .entry-summary { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .entry-title { font-weight: 700; font-size: 16px; color: #194E83; }
+        .entry-meta { font-size: 15px; color: #334155; line-height: 1.5; }
         .entry-meta.muted { color: #64748b; font-style: italic; }
-        .entry-footer { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 16px; }
-        .entry-toggle { background: none; border: none; color: #1f6feb; padding: 0; font-size: 0; cursor: pointer; width: 22px; height: 22px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; }
-        .entry-toggle span[aria-hidden="true"] { font-size: 10px; font-weight: 600; transition: transform 0.2s ease-in-out; }
+        .entry-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 8px; }
+        .entry-toggle { background: none; border: none; color: #1f6feb; padding: 0; font-size: 0; cursor: pointer; width: 32px; height: 32px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .entry-toggle:hover { background: rgba(31, 111, 235, 0.1); }
+        .entry-toggle span[aria-hidden="true"] { font-size: 16px; font-weight: 700; transition: transform 0.2s ease-in-out; }
         .entry-toggle::after { display: none; }
         .entry.expanded .entry-toggle span[aria-hidden="true"] { transform: rotate(-180deg); }
         .entry-icons { display: flex; gap: 4px; }
-        .icon-button { width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 5px; text-decoration: none; color: inherit; background: rgba(15, 23, 42, 0.08); border: 1px solid transparent; font-size: 13px; }
-        .icon-button:hover { background: rgba(15, 23, 42, 0.15); }
-        .icon-button.delete { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; color: #4b5563; background: rgba(107, 114, 128, 0.12); }
-        .icon-button.delete:hover { background: rgba(107, 114, 128, 0.2); }
-        .icon-button.edit { position: absolute; bottom: 4px; right: 4px; width: 20px; height: 20px; }
+        .icon-button { width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; text-decoration: none; color: inherit; background: rgba(15, 23, 42, 0.1); border: 1px solid transparent; font-size: 12px; transition: all 0.2s; }
+        .icon-button:hover { background: rgba(15, 23, 42, 0.2); transform: scale(1.1); }
+        .icon-button.delete { position: absolute; top: 6px; right: 6px; width: 18px; height: 18px; color: #6b7280; background: rgba(107, 114, 128, 0.15); }
+        .icon-button.delete:hover { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
+        .icon-button.edit { position: absolute; bottom: 6px; right: 6px; width: 18px; height: 18px; }
         .report-header { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-        .entry-chip { background: rgba(15, 23, 42, 0.08); color: #0f172a; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 700; border: 1px solid rgba(15, 23, 42, 0.16); }
-        .entry.report .entry-chip { background: rgba(146, 64, 14, 0.12); color: #92400e; border-color: rgba(146, 64, 14, 0.18); }
-        .entry.absence .entry-chip { background: rgba(180, 83, 9, 0.10); color: #92400e; border-color: rgba(180, 83, 9, 0.2); }
-        .entry-chip.status-agendada { background: #b4d5ff; color: #1d4ed8; border-color: #1d4ed8; }
-        .entry-chip.status-concluida { background: #c0ffde; color: #047857; border-color: #047857; }
-        .entry-chip.status-reprovada { background: #fdc4c4; color: #b91c1c; border-color: #b91c1c; }
+        .entry-chip { background: rgba(15, 23, 42, 0.1); color: #0f172a; padding: 5px 12px; border-radius: 14px; font-size: 13px; font-weight: 700; border: 1px solid rgba(15, 23, 42, 0.2); white-space: nowrap; }
+        .entry.report .entry-chip { background: rgba(146, 64, 14, 0.15); color: #92400e; border-color: rgba(146, 64, 14, 0.25); }
+        .entry.absence .entry-chip { background: rgba(180, 83, 9, 0.12); color: #92400e; border-color: rgba(180, 83, 9, 0.25); }
+        .entry-chip.status-agendada { background: #bfdbfe; color: #1e40af; border-color: #3b82f6; }
+        .entry-chip.status-concluida { background: #bbf7d0; color: #15803d; border-color: #22c55e; }
+        .entry-chip.status-reprovada { background: #fecaca; color: #991b1b; border-color: #ef4444; }
         .report-summary { gap: 4px; }
         .report-footer { justify-content: flex-start; }
         .entry-details { display: none; border-top: 1px solid rgba(15, 23, 42, 0.12); padding-top: 6px; font-size: 12px; color: #1f2937; }
@@ -96,6 +104,8 @@
         .cell-action { position: absolute; right: 8px; bottom: 8px; background: #2563eb; color: #fff; border: none; border-radius: 6px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; line-height: 1; box-shadow: 0 2px 4px rgba(15, 23, 42, 0.18); }
         .cell-action:hover { background: #1d4ed8; }
         .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+        .entry.dragging { opacity: 0.6; }
+        td.entry-cell.drag-over { outline: 2px dashed #2563eb; background: #e0e7ff; }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
@@ -134,6 +144,184 @@
         document.addEventListener('DOMContentLoaded', function () { bindEntryToggles(document); });
     } else {
         bindEntryToggles(document);
+    }
+    
+    function getCsrfToken() {
+        var cookieMatch = document.cookie.match(/csrftoken=([^;]+)/);
+        if (cookieMatch) { return cookieMatch[1]; }
+        var input = document.querySelector('input[name="csrfmiddlewaretoken"]');
+        return input ? input.value : '';
+    }
+    
+    function updateStackClasses(stack) {
+        if (!stack) { return; }
+        var count = stack.children.length;
+        var classes = ['entry-stack'];
+        if (count >= 1 && count <= 4) {
+            classes.push('stack-' + count);
+        }
+        stack.className = classes.join(' ');
+    }
+    
+    function ensureStack(cell) {
+        var stack = cell.querySelector('.entry-stack');
+        if (!stack) {
+            stack = document.createElement('div');
+            stack.className = 'entry-stack';
+            var before = cell.querySelector('.cell-action');
+            if (before) {
+                cell.insertBefore(stack, before);
+            } else {
+                cell.appendChild(stack);
+            }
+        }
+        return stack;
+    }
+    
+    function removeEmptyPlaceholder(cell) {
+        var empty = cell.querySelector('.empty');
+        if (empty) { empty.remove(); }
+    }
+    
+    function addEmptyPlaceholder(cell) {
+        if (cell.querySelector('.empty')) { return; }
+        var span = document.createElement('span');
+        span.className = 'empty';
+        span.textContent = '—';
+        var before = cell.querySelector('.cell-action');
+        if (before) {
+            cell.insertBefore(span, before);
+        } else {
+            cell.appendChild(span);
+        }
+    }
+    
+    function bindDragAndDrop() {
+        var draggedEntry = null;
+        var dropTargets = document.querySelectorAll('[data-drop-enabled="true"]');
+        var entries = document.querySelectorAll('.entry[draggable="true"]');
+        
+        entries.forEach(function (entry) {
+            entry.addEventListener('dragstart', function (event) {
+                draggedEntry = entry;
+                entry.classList.add('dragging');
+                event.dataTransfer.effectAllowed = 'move';
+                event.dataTransfer.setData('text/plain', entry.dataset.entryId || '');
+            });
+            
+            entry.addEventListener('dragend', function () {
+                entry.classList.remove('dragging');
+            });
+        });
+        
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+            this.classList.add('drag-over');
+        }
+        
+        function handleDragLeave() {
+            this.classList.remove('drag-over');
+        }
+        
+        function handleDrop(event) {
+            event.preventDefault();
+            this.classList.remove('drag-over');
+            var targetCell = this;
+            var entry = draggedEntry;
+            if (!entry) { return; }
+            
+            var entryId = entry.dataset.entryId;
+            var targetDate = this.dataset.dropDate;
+            var targetInspector = this.dataset.dropInspector || entry.dataset.entryInspector;
+            var targetInspectorName = this.dataset.dropInspectorName || '';
+            if (!entryId || !targetDate || !targetInspector) { return; }
+            
+            var payload = {
+                date: targetDate,
+                inspector_id: parseInt(targetInspector, 10),
+            };
+
+            var moveUrl = entry.dataset.moveUrl;
+            if (!moveUrl && entryId) {
+                moveUrl = '/agenda/entradas/' + entryId + '/mover/';
+            }
+            if (!moveUrl) {
+                alert('URL de movimentação não encontrada.');
+                return;
+            }
+
+            fetch(moveUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken(),
+                },
+                body: JSON.stringify(payload),
+            })
+                .then(function (response) {
+                    if (response.ok) { return response.json(); }
+                    return response.text().then(function (text) {
+                        var message = 'Falha ao mover.';
+                        try {
+                            var data = JSON.parse(text);
+                            if (data && data.error) { message = data.error; }
+                        } catch (err) {
+                            if (text) { message = text.trim().slice(0, 300); }
+                        }
+                        message += ' (status ' + response.status + ')';
+                        throw new Error(message);
+                    });
+                })
+                .then(function () {
+                    var originCell = entry.closest('.entry-cell');
+                    var originStack = entry.parentElement;
+                    if (originStack) {
+                        originStack.removeChild(entry);
+                        updateStackClasses(originStack);
+                        if (!originStack.children.length) { addEmptyPlaceholder(originCell); }
+                    }
+                    
+                    removeEmptyPlaceholder(targetCell);
+                    var targetStack = ensureStack(targetCell);
+                    targetStack.appendChild(entry);
+                    updateStackClasses(targetStack);
+                    
+                    entry.dataset.entryDate = targetDate;
+                    entry.dataset.entryInspector = String(payload.inspector_id);
+
+                    if (targetInspectorName) {
+                        var detailNodes = entry.querySelectorAll('.entry-details strong');
+                        detailNodes.forEach(function (strong) {
+                            if ((strong.textContent || '').trim().toLowerCase().startsWith('inspetor')) {
+                                var parent = strong.parentNode;
+                                if (parent && parent.childNodes.length > 1) {
+                                    parent.childNodes[1].textContent = ' ' + targetInspectorName;
+                                }
+                            }
+                        });
+                    }
+                })
+                .catch(function (error) {
+                    alert(error.message || 'Erro ao mover entrada.');
+                })
+                .finally(function () {
+                    draggedEntry = null;
+                });
+        }
+        
+        dropTargets.forEach(function (cell) {
+            cell.addEventListener('dragover', handleDragOver);
+            cell.addEventListener('dragenter', handleDragOver);
+            cell.addEventListener('dragleave', handleDragLeave);
+            cell.addEventListener('drop', handleDrop);
+        });
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { bindDragAndDrop(); });
+    } else {
+        bindDragAndDrop();
     }
 })();
 </script>

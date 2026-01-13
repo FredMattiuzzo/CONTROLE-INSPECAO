@@ -7,20 +7,17 @@
     <div class="calendar-header">
         <h2>Semana {{ week_start|date:"d/m" }} - {{ week_end|date:"d/m/Y" }}</h2>
         <div class="actions">
+            <button type="button" id="open-entry-modal"
+                    data-open-entry
+                    {% if selected_inspector %}data-target-inspector="{{ selected_inspector.pk }}"{% elif current_inspector %}data-target-inspector="{{ current_inspector.pk }}"{% endif %}
+                    >Nova entrada</button>
+            <noscript>
+                <a href="{% url 'schedule:entry_create' %}?next={{ request.get_full_path|urlencode }}" class="secondary">Nova entrada</a>
+            </noscript>
             <a href="{% url 'schedule:monthly_schedule' %}" class="secondary">Visão mensal</a>
             <a class="secondary" href="?week={{ previous_offset }}">◀ Semana anterior</a>
             <a class="secondary" href="?week={{ next_offset }}">Semana seguinte ▶</a>
         </div>
-    </div>
-
-    <div class="actions" style="margin-bottom: 16px;">
-        <button type="button" id="open-entry-modal"
-                data-open-entry
-                {% if selected_inspector %}data-target-inspector="{{ selected_inspector.pk }}"{% elif current_inspector %}data-target-inspector="{{ current_inspector.pk }}"{% endif %}
-                >Nova entrada</button>
-        <noscript>
-            <a href="{% url 'schedule:entry_create' %}?next={{ request.get_full_path|urlencode }}" class="secondary">Nova entrada</a>
-        </noscript>
     </div>
 
     <table class="weekly-table" aria-label="Agenda semanal">
@@ -40,9 +37,10 @@
                         <td class="entry-cell"
                             data-drop-enabled="true"
                             data-drop-date="{{ day|date:'Y-m-d' }}"
-                            data-drop-inspector="{{ row.inspector.pk }}">
+                            data-drop-inspector="{{ row.inspector.pk }}"
+                            data-drop-inspector-name="{{ row.inspector.full_name }}">
                             {% if entries %}
-                                <div class="entry-stack">
+                                <div class="entry-stack stack-{{ entries|length }}">
                                     {% for entry in entries %}
                                         {% with entry.entry_type|lower as entry_type_class %}
                                             {% with entry.status|default_if_none:""|lower as status_class %}
@@ -57,11 +55,12 @@
                                                         {% endif %}
                                                     {% endwith %}
                                                 {% else %}
-                                                    <div class="entry {{ entry_type_class }} {% if status_class %}status-{{ status_class }}{% endif %}"
-                                                         draggable="true"
-                                                         data-entry-id="{{ entry.pk }}"
-                                                         data-entry-date="{{ entry.date|date:'Y-m-d' }}"
-                                                           data-entry-inspector="{{ entry.inspector_id }}">
+                                                      <div class="entry {{ entry_type_class }} {% if status_class %}status-{{ status_class }}{% endif %}"
+                                                          draggable="true"
+                                                          data-entry-id="{{ entry.pk }}"
+                                                          data-entry-date="{{ entry.date|date:'Y-m-d' }}"
+                                                          data-entry-inspector="{{ entry.inspector_id }}"
+                                                          data-move-url="{% url 'schedule:entry_move' entry.pk %}">
                                                         {% if is_manager or current_inspector and entry.inspector_id == current_inspector.pk %}
                                                             <a href="{% url 'schedule:entry_delete' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button delete" aria-label="Excluir">
                                                                 &#10006;<span class="sr-only">Excluir</span>
