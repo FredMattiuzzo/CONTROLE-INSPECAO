@@ -4,7 +4,82 @@
 
 {% block extra_head %}
 <style>
-    .monthly-grid .entry { min-height: auto; }
+    .monthly-grid .entry { 
+        min-height: auto; 
+        padding: 3px 5px; 
+        gap: 1px; 
+        font-size: 9px;
+        border-radius: 4px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        display: inline-block;
+        text-align: center;
+        width: auto;
+        min-width: 65px;
+        max-width: 85px;
+    }
+    .monthly-grid .entry:hover {
+        transform: none;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+    .monthly-grid .entry-header {
+        gap: 2px;
+        margin-bottom: 0;
+        justify-content: center;
+    }
+    .monthly-grid .entry-title-row {
+        justify-content: center;
+    }
+    .monthly-grid .entry-chip {
+        font-size: 8px;
+        padding: 2px 5px;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+    .monthly-grid .entry-summary {
+        gap: 2px;
+        align-items: center;
+    }
+    .monthly-grid .entry-meta {
+        font-size: 9px;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        display: block;
+    }
+    .monthly-grid .icon-button.delete {
+        width: 14px;
+        height: 14px;
+        top: 2px;
+        right: 2px;
+        font-size: 9px;
+    }
+    .monthly-grid .icon-button.edit {
+        display: none;
+    }
+    .monthly-grid .entry-footer,
+    .monthly-grid .entry-details,
+    .monthly-grid .entry-toggle {
+        display: none !important;
+    }
+    .monthly-grid td.entry-cell {
+        padding: 6px 4px 32px 4px;
+        min-height: 90px;
+    }
+    .monthly-grid .entry-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 3px;
+        justify-content: flex-start;
+    }
+    .monthly-grid .cell-action {
+        width: 22px;
+        height: 22px;
+        font-size: 15px;
+        right: 4px;
+        bottom: 4px;
+    }
 </style>
 {% endblock %}
 
@@ -37,14 +112,13 @@
                 <th>Qua</th>
                 <th>Qui</th>
                 <th>Sex</th>
-                <th>Sáb</th>
-                <th>Dom</th>
             </tr>
         </thead>
         <tbody>
             {% for week in weeks %}
                 <tr>
                     {% for cell in week %}
+                        {% if cell.date.weekday < 5 %}
                         <td class="entry-cell {% if not cell.is_current_month %}empty{% endif %}"
                             {% if cell.is_current_month %}
                                 data-drop-enabled="true"
@@ -82,53 +156,15 @@
                                                             {% endif %}
                                                             <div class="entry-header">
                                                                 <div class="entry-title-row">
-                                                                    <span class="entry-title">{{ entry.get_entry_type_display }}</span>
                                                                     {% if entry.entry_type == entry.ENTRY_TYPE_INSPECTION and entry.status %}
                                                                         <span class="entry-chip status-{{ entry.status|lower }}">{{ entry.get_status_display }}</span>
                                                                     {% endif %}
                                                                 </div>
                                                             </div>
                                                             <div class="entry-summary">
-                                                                {% if entry.content %}
-                                                                    <span class="entry-meta">{{ entry.content }}</span>
-                                                                {% endif %}
-                                                                {% if not entry.sa_number %}
-                                                                    {% if entry.entry_type == entry.ENTRY_TYPE_ABSENCE %}
-                                                                        <span class="entry-meta muted">Ausência</span>
-                                                                    {% else %}
-                                                                        <span class="entry-meta muted">Sem CP</span>
-                                                                    {% endif %}
-                                                                {% endif %}
-                                                            </div>
-                                                            <div class="entry-footer">
-                                                                <button type="button" class="entry-toggle" data-toggle-entry aria-expanded="false">
-                                                                    <span aria-hidden="true">▼</span>
-                                                                    <span class="sr-only">Detalhes</span>
-                                                                </button>
-                                                                <div class="entry-footer-meta" style="display:flex; gap:6px; align-items:flex-end;">
-                                                                    {% if entry.sa_number %}
-                                                                        <span class="entry-chip">CP {{ entry.sa_number }}</span>
-                                                                    {% endif %}
-                                                                </div>
-                                                            </div>
-                                                            {% if is_manager or current_inspector and entry.inspector_id == current_inspector.pk %}
-                                                                <a href="{% url 'schedule:entry_update' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button edit" aria-label="Editar">
-                                                                    &#9998;<span class="sr-only">Editar</span>
-                                                                </a>
-                                                            {% endif %}
-                                                            <div class="entry-details">
-                                                                {% if entry.sa_number %}<div><strong>SA:</strong> {{ entry.sa_number }}</div>{% endif %}
-                                                                <div><strong>Tipo:</strong> {{ entry.get_entry_type_display }}</div>
-                                                                {% if entry.entry_type == entry.ENTRY_TYPE_INSPECTION %}
-                                                                    {% if entry.inspection_type %}<div><strong>Modo:</strong> {{ entry.get_inspection_type_display }}</div>{% endif %}
-                                                                    {% if entry.status %}<div><strong>Status:</strong> {{ entry.get_status_display }}</div>{% endif %}
-                                                                {% endif %}
-                                                                <div><strong>Inspetor:</strong> {{ entry.inspector.full_name }}</div>
-                                                                <div><strong>Data:</strong> {{ entry.date|date:"d/m/Y" }}</div>
-                                                                {% if entry.content %}
-                                                                    <div><strong>Detalhes:</strong>
-                                                                        <div class="entry-note">{{ entry.content|linebreaksbr }}</div>
-                                                                    </div>
+                                                                <span class="entry-meta" style="font-weight: 600;">{{ entry.inspector.full_name }}</span>
+                                                                {% if entry.sa_number %}
+                                                                    <span class="entry-meta">CP {{ entry.sa_number }}</span>
                                                                 {% endif %}
                                                             </div>
                                                         </div>
@@ -153,6 +189,7 @@
                                 <span class="empty">—</span>
                             {% endif %}
                         </td>
+                        {% endif %}
                     {% endfor %}
                 </tr>
             {% endfor %}

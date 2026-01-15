@@ -60,6 +60,7 @@ class ScheduleEntry(models.Model):
     sa_number = models.CharField(max_length=50, blank=True)
     content = models.TextField()
     inspection_type = models.CharField(max_length=20, choices=INSPECTION_TYPE_CHOICES, null=True, blank=True)
+    client = models.CharField(max_length=255, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_SCHEDULED, null=True, blank=True)
     concluded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="concluded_entries")
     concluded_at = models.DateTimeField(null=True, blank=True)
@@ -69,10 +70,13 @@ class ScheduleEntry(models.Model):
     def save(self, *args, **kwargs):
         if self.entry_type in {self.ENTRY_TYPE_ABSENCE, self.ENTRY_TYPE_REPORT}:
             self.inspection_type = None
+            self.client = None
             self.status = None
             self.concluded_by = None
             self.concluded_at = None
         else:
+            if self.inspection_type != self.INSPECTION_TYPE_EXTERNAL:
+                self.client = None
             if not self.status:
                 self.status = self.STATUS_SCHEDULED
             if self.status not in (self.STATUS_COMPLETED, self.STATUS_FAILED):

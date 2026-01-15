@@ -17,7 +17,7 @@
         {{ form.non_field_errors }}
         <div>
             {% for field in form %}
-                <div style="margin-bottom: 16px;">
+                <div class="field-group field-group-{{ field.name }}" style="margin-bottom: 16px;">
                     <label for="{{ field.id_for_label }}">{{ field.label }}</label><br>
                     {{ field }}
                     {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
@@ -37,4 +37,31 @@
         </div>
     </form>
 </div>
+<script>
+(function () {
+    const form = document.querySelector('form');
+    if (!form) { return; }
+    const entryTypeField = form.querySelector('#id_entry_type');
+    const inspectionTypeField = form.querySelector('#id_inspection_type');
+    const clientGroup = form.querySelector('.field-group-client');
+    const clientField = form.querySelector('#id_client');
+
+    function toggleClientField() {
+        const isInspection = entryTypeField && entryTypeField.value === 'INSPECTION';
+        const isExternal = isInspection && inspectionTypeField && inspectionTypeField.value === 'EXTERNAL';
+        if (clientGroup) { clientGroup.style.display = isExternal ? 'block' : 'none'; }
+        if (clientField) {
+            clientField.required = isExternal;
+            if (!isExternal) {
+                clientField.value = '';
+            }
+        }
+    }
+
+    if (entryTypeField) { entryTypeField.addEventListener('change', toggleClientField); }
+    if (inspectionTypeField) { inspectionTypeField.addEventListener('change', toggleClientField); }
+
+    toggleClientField();
+})();
+</script>
 {% endblock %}

@@ -2,6 +2,14 @@
 
 {% block title %}Agenda semanal{% endblock %}
 
+{% block extra_head %}
+<style>
+    .status-chip-control { cursor: pointer; }
+    .status-picker { position: absolute; z-index: 1200; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15); padding: 8px; }
+    .status-picker select { width: 180px; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="calendar-header">
@@ -70,7 +78,14 @@
                                                             <div class="entry-title-row">
                                                                 <span class="entry-title">{{ entry.get_entry_type_display }}</span>
                                                                 {% if entry.entry_type == entry.ENTRY_TYPE_INSPECTION and entry.status %}
-                                                                    <span class="entry-chip status-{{ entry.status|lower }}">{{ entry.get_status_display }}</span>
+                                                                    <button type="button"
+                                                                            class="entry-chip status-{{ entry.status|lower }} status-chip-control"
+                                                                            data-status="{{ entry.status }}"
+                                                                            {% if is_manager or current_inspector and entry.inspector_id == current_inspector.pk %}
+                                                                                data-status-url="{% url 'schedule:entry_status' entry.pk %}"
+                                                                            {% endif %}>
+                                                                        {{ entry.get_status_display }}
+                                                                    </button>
                                                                 {% endif %}
                                                             </div>
                                                         </div>
@@ -107,6 +122,7 @@
                                                             <div><strong>Tipo:</strong> {{ entry.get_entry_type_display }}</div>
                                                             {% if entry.entry_type == entry.ENTRY_TYPE_INSPECTION %}
                                                                 {% if entry.inspection_type %}<div><strong>Modo:</strong> {{ entry.get_inspection_type_display }}</div>{% endif %}
+                                                                {% if entry.inspection_type == entry.INSPECTION_TYPE_EXTERNAL and entry.client %}<div><strong>Cliente:</strong> {{ entry.client }}</div>{% endif %}
                                                                 {% if entry.status %}<div><strong>Status:</strong> {{ entry.get_status_display }}</div>{% endif %}
                                                             {% endif %}
                                                             <div><strong>Inspetor:</strong> {{ entry.inspector.full_name }}</div>
@@ -148,4 +164,115 @@
 </div>
 
 {% include "schedule/_entry_modal.html" %}
+<script>
+(function () {
+    const chips = document.querySelectorAll('.status-chip-control[data-status-url]');
+    if (!chips.length) { return; }
+
+    let picker = null;
+
+    function getCsrfToken() {
+        const cookieMatch = document.cookie.match(/csrftoken=([^;]+)/);
+        if (cookieMatch) { return cookieMatch[1]; }
+        const input = document.querySelector('input[name="csrfmiddlewaretoken"]');
+        return input ? input.value : '';
+    }
+
+    function closePicker() {
+        if (!picker) { return; }
+        picker.remove();
+        picker = null;
+        document.removeEventListener('click', handleOutsideClick, true);
+        document.removeEventListener('keydown', handleEscape, true);
+    }
+
+    function handleOutsideClick(event) {
+        if (picker && !picker.contains(event.target)) {
+            closePicker();
+        }
+    }
+
+    function handleEscape(event) {
+        if (event.key === 'Escape') {
+            closePicker();
+        }
+    }
+
+    function submitStatus(url, value) {
+        const payload = new URLSearchParams();
+        payload.append('status', value);
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: payload.toString(),
+            credentials: 'same-origin',
+        })
+            .then(function (response) {
+                if (!response.ok) { throw new Error('bad-status'); }
+                return response.json();
+            })
+            .then(function (data) {
+                if (data && data.ok) {
+                    window.location.reload();
+                } else {
+                    alert(data && data.error ? data.error : 'Falha ao atualizar status.');
+                }
+            })
+            .catch(function () {
+                alert('Falha ao atualizar status.');
+            });
+    }
+
+    function openPicker(chip) {
+        closePicker();
+        const rect = chip.getBoundingClientRect();
+        picker = document.createElement('div');
+        picker.className = 'status-picker';
+
+        const select = document.createElement('select');
+        [
+            { value: 'AGENDADA', label: 'Agendada' },
+            { value: 'CONCLUIDA', label: 'Concluída' },
+            { value: 'REPROVADA', label: 'Reprovada' },
+        ].forEach(function (opt) {
+            const option = document.createElement('option');
+            option.value = opt.value;
+            option.textContent = opt.label;
+            select.appendChild(option);
+        });
+
+        if (chip.dataset.status) {
+            select.value = chip.dataset.status;
+        }
+
+        picker.appendChild(select);
+        document.body.appendChild(picker);
+
+        const top = rect.bottom + 6 + window.scrollY;
+        const left = rect.left + window.scrollX;
+        picker.style.top = top + 'px';
+        picker.style.left = left + 'px';
+
+        select.focus();
+        select.addEventListener('change', function () {
+            submitStatus(chip.dataset.statusUrl, select.value);
+            closePicker();
+        });
+
+        document.addEventListener('click', handleOutsideClick, true);
+        document.addEventListener('keydown', handleEscape, true);
+    }
+
+    chips.forEach(function (chip) {
+        chip.addEventListener('click', function (event) {
+            event.stopPropagation();
+            openPicker(chip);
+        });
+    });
+})();
+</script>
 {% endblock %}

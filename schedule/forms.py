@@ -26,6 +26,7 @@ class ScheduleEntryForm(forms.ModelForm):
         self.fields["status"].required = False
         self.fields["inspection_type"].required = False
         self.fields["sa_number"].required = False
+        self.fields["client"].required = False
 
         self.fields["entry_type"].label = "Tipo de entrada"
         self.fields["inspector"].label = "Inspetor"
@@ -33,6 +34,7 @@ class ScheduleEntryForm(forms.ModelForm):
         self.fields["sa_number"].label = "CP"
         self.fields["content"].label = "Descrição"
         self.fields["inspection_type"].label = "Tipo de inspeção"
+        self.fields["client"].label = "Cliente"
         self.fields["status"].label = "Status"
 
         self.fields["entry_type"].choices = [("", "Selecione"), *[
@@ -73,6 +75,7 @@ class ScheduleEntryForm(forms.ModelForm):
             "sa_number",
             "content",
             "inspection_type",
+            "client",
             "status",
         )
 
@@ -113,10 +116,15 @@ class ScheduleEntryForm(forms.ModelForm):
         date = cleaned_data.get("date")
         status = cleaned_data.get("status")
         inspection_type = cleaned_data.get("inspection_type")
+        client = cleaned_data.get("client")
 
         if entry_type == ScheduleEntry.ENTRY_TYPE_INSPECTION:
             if not inspection_type:
                 self.add_error("inspection_type", "Selecione o tipo de inspeção.")
+            if inspection_type == ScheduleEntry.INSPECTION_TYPE_EXTERNAL and not client:
+                self.add_error("client", "Informe o cliente para inspeções externas.")
+            if inspection_type != ScheduleEntry.INSPECTION_TYPE_EXTERNAL:
+                cleaned_data["client"] = None
             if inspector and date:
                 conflict = ScheduleEntry.objects.filter(
                     inspector=inspector,
@@ -133,6 +141,7 @@ class ScheduleEntryForm(forms.ModelForm):
                 cleaned_data["status"] = ScheduleEntry.STATUS_SCHEDULED
         else:
             cleaned_data["inspection_type"] = None
+            cleaned_data["client"] = None
             cleaned_data["status"] = None
 
         return cleaned_data

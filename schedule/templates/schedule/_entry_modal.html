@@ -42,7 +42,10 @@
     const inspectorField = form.querySelector('#id_inspector');
     const dateField = form.querySelector('#id_date');
     const entryTypeField = form.querySelector('#id_entry_type');
+    const inspectionTypeField = form.querySelector('#id_inspection_type');
     const inspectionTypeGroup = form.querySelector('.field-group-inspection_type');
+    const clientGroup = form.querySelector('.field-group-client');
+    const clientField = form.querySelector('#id_client');
     const statusGroup = form.querySelector('.field-group-status');
 
     const openButtons = document.querySelectorAll('[data-open-entry]');
@@ -54,11 +57,24 @@
         }
     }
 
+    function toggleClientField(isInspection) {
+        if (!clientGroup) { return; }
+        const isExternal = isInspection && inspectionTypeField && inspectionTypeField.value === 'EXTERNAL';
+        clientGroup.style.display = isExternal ? 'block' : 'none';
+        if (clientField) {
+            clientField.required = isExternal;
+            if (!isExternal) {
+                clientField.value = '';
+            }
+        }
+    }
+
     function toggleInspectionFields() {
         if (!entryTypeField) { return; }
         const isInspection = entryTypeField.value === 'INSPECTION';
         if (inspectionTypeGroup) { inspectionTypeGroup.style.display = isInspection ? 'block' : 'none'; }
         if (statusGroup) { statusGroup.style.display = isInspection ? 'block' : 'none'; }
+        toggleClientField(isInspection);
     }
 
     function openModal(inspectorId, dateValue) {
@@ -114,6 +130,13 @@
     if (entryTypeField) {
         entryTypeField.addEventListener('change', toggleInspectionFields);
         toggleInspectionFields();
+    }
+
+    if (inspectionTypeField) {
+        inspectionTypeField.addEventListener('change', function () {
+            const isInspection = entryTypeField && entryTypeField.value === 'INSPECTION';
+            toggleClientField(isInspection);
+        });
     }
 
     if (inspectorField && inspectorField.value) {

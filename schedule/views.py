@@ -232,6 +232,46 @@ class ScheduleEntryMoveView(ScheduleUserMixin, View):
         return JsonResponse({"ok": True, "date": entry.date.isoformat(), "inspector_id": entry.inspector_id})
 
 
+class ScheduleEntryStatusUpdateView(ScheduleUserMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        entry = get_object_or_404(
+            ScheduleEntry.objects.select_related("inspector"), pk=pk
+        )
+
+        if entry.entry_type != ScheduleEntry.ENTRY_TYPE_INSPECTION:
+            return JsonResponse({"ok": False, "error": "Somente inspeções podem ter status alterado."}, status=400)
+
+        if not self.is_manager():
+            inspector = self.get_inspector_profile()
+            if not inspector or inspector.pk != entry.inspector_id:
+                raise PermissionDenied
+
+        new_status = (request.POST.get("status") or "").strip().upper()
+        allowed = {
+            ScheduleEntry.STATUS_SCHEDULED,
+            ScheduleEntry.STATUS_COMPLETED,
+            ScheduleEntry.STATUS_FAILED,
+        }
+        if new_status not in allowed:
+            return JsonResponse({"ok": False, "error": "Status inválido."}, status=400)
+
+        entry.status = new_status
+        if new_status in {ScheduleEntry.STATUS_COMPLETED, ScheduleEntry.STATUS_FAILED}:
+            entry.concluded_at = timezone.now()
+            entry.concluded_by = self.get_schedule_user()
+        else:
+            entry.concluded_at = None
+            entry.concluded_by = None
+
+        entry.save()
+
+        return JsonResponse({
+            "ok": True,
+            "status": entry.status,
+            "status_display": entry.get_status_display(),
+        })
+
+
 class MonthlyScheduleView(ScheduleFilterMixin, TemplateView):
     template_name = "schedule/monthly.html"
 
