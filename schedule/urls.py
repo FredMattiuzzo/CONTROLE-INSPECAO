@@ -9,6 +9,7 @@ from .views import (
     WeeklyScheduleView,
     ScheduleEntryMoveView,
     AdminAccessView,
+    ScheduleEntrySearchView,
 )
 
 app_name = "schedule"
@@ -21,5 +22,6 @@ urlpatterns = [
     path("entradas/<int:pk>/status/", ScheduleEntryStatusUpdateView.as_view(), name="entry_status"),
     path("entradas/<int:pk>/excluir/", ScheduleEntryDeleteView.as_view(), name="entry_delete"),
     path("entradas/<int:pk>/mover/", ScheduleEntryMoveView.as_view(), name="entry_move"),
+    path("busca/", ScheduleEntrySearchView.as_view(), name="entry_search"),
     path("acesso-superior/", AdminAccessView.as_view(), name="admin_access"),
 ]

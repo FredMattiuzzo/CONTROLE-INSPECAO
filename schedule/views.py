@@ -5,12 +5,14 @@ from datetime import timedelta, datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import View
 from django.views.generic import CreateView, DeleteView, TemplateView, UpdateView
+from django.utils.http import urlencode
 
 from .forms import ScheduleEntryForm
 from .models import InspectorProfile, ScheduleEntry, User
@@ -409,6 +411,64 @@ class ScheduleEntryDeleteView(ScheduleEntryQuerysetMixin, DeleteView):
     def get_success_url(self):
         next_url = self.request.POST.get("next") or self.request.GET.get("next")
         return next_url or super().get_success_url()
+
+
+class ScheduleEntrySearchView(ScheduleUserMixin, View):
+    def get_queryset(self):
+        queryset = ScheduleEntry.objects.select_related(
+            "inspector",
+            "inspector__user",
+            "concluded_by",
+        )
+        if self.is_manager():
+            return queryset
+        inspector = self.get_inspector_profile()
+        if inspector:
+            return queryset.filter(inspector=inspector)
+        return queryset.none()
+
+    def get(self, request, *args, **kwargs):
+        term = (request.GET.get("q") or "").strip()
+        index_raw = request.GET.get("i", "0")
+        try:
+            index = int(index_raw)
+        except (TypeError, ValueError):
+            index = 0
+
+        weekly_url = reverse_lazy("schedule:weekly_schedule")
+        if not term:
+            return redirect(f"{weekly_url}?search=empty")
+
+        queryset = self.get_queryset().filter(
+            Q(sa_number__icontains=term)
+            | Q(content__icontains=term)
+            | Q(client__icontains=term)
+            | Q(inspector__full_name__icontains=term)
+        )
+
+        ids = list(queryset.order_by("date", "inspector__full_name").values_list("pk", flat=True))
+        total = len(ids)
+        if not total:
+            params = urlencode({"search": "notfound", "q": term})
+            return redirect(f"{weekly_url}?{params}")
+
+        if index < 0:
+            index = total - 1
+        if index >= total:
+            index = 0
+
+        entry = self.get_queryset().filter(pk=ids[index]).first()
+        if not entry:
+            params = urlencode({"search": "notfound", "q": term})
+            return redirect(f"{weekly_url}?{params}")
+
+        today = timezone.localdate()
+        week_start = today - timedelta(days=today.weekday())
+        offset_days = (entry.date - week_start).days
+        offset = int(offset_days // 7)
+
+        params = urlencode({"week": offset, "focus": entry.pk, "q": term, "i": index, "total": total})
+        return redirect(f"{weekly_url}?{params}")
 
 
 class AdminAccessView(ScheduleUserMixin, TemplateView):

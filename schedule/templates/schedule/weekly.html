@@ -12,6 +12,11 @@
 
 {% block content %}
 <div class="container">
+    {% if request.GET.search == "notfound" %}
+        <div class="message">Nenhum resultado encontrado para "{{ request.GET.q }}".</div>
+    {% elif request.GET.search == "empty" %}
+        <div class="message">Digite um termo para pesquisar.</div>
+    {% endif %}
     <div class="calendar-header">
         <h2>Semana {{ week_start|date:"d/m" }} - {{ week_end|date:"d/m/Y" }}</h2>
         <div class="actions">
@@ -27,6 +32,18 @@
             <a class="secondary" href="?week={{ next_offset }}">Semana seguinte ▶</a>
         </div>
     </div>
+
+    <form class="search-bar" method="get" action="{% url 'schedule:entry_search' %}">
+        <label for="entry-search-input">Pesquisar item</label>
+        <input id="entry-search-input" name="q" type="search" placeholder="Ex: CP 123, cliente, inspetor..." value="{{ request.GET.q|default_if_none:'' }}" data-entry-search-input>
+        <button type="submit" name="i" value="0">Buscar</button>
+        <button type="submit" class="ghost" name="i" value="{{ request.GET.i|default:'0'|add:'-1' }}">◀ Anterior</button>
+        <button type="submit" class="ghost" name="i" value="{{ request.GET.i|default:'0'|add:'1' }}">Próximo ▶</button>
+        <button type="button" class="ghost" data-entry-search-clear>Limpar</button>
+        <span class="search-status" data-entry-search-status>
+            {% if request.GET.total %}Global: {{ request.GET.i|default:'0'|add:'1' }} de {{ request.GET.total }}{% endif %}
+        </span>
+    </form>
 
     <table class="weekly-table" aria-label="Agenda semanal">
         <thead>
@@ -63,7 +80,7 @@
                                                         {% endif %}
                                                     {% endwith %}
                                                 {% else %}
-                                                      <div class="entry {{ entry_type_class }} {% if status_class %}status-{{ status_class }}{% endif %}"
+                                                      <div class="entry {{ entry_type_class }} {% if status_class %}status-{{ status_class }}{% endif %} {% if entry.entry_type == entry.ENTRY_TYPE_INSPECTION and entry.inspection_type == entry.INSPECTION_TYPE_EXTERNAL %}external-inspection{% endif %}"
                                                           draggable="true"
                                                           data-entry-id="{{ entry.pk }}"
                                                           data-entry-date="{{ entry.date|date:'Y-m-d' }}"
@@ -90,6 +107,9 @@
                                                             </div>
                                                         </div>
                                                         <div class="entry-summary">
+                                                            {% if entry.entry_type == entry.ENTRY_TYPE_INSPECTION and entry.inspection_type == entry.INSPECTION_TYPE_EXTERNAL and entry.client %}
+                                                                <span class="entry-meta" style="font-weight: 600;">{{ entry.client }}</span>
+                                                            {% endif %}
                                                             {% if entry.content %}
                                                                 <span class="entry-meta">{{ entry.content }}</span>
                                                             {% endif %}

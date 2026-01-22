@@ -4,7 +4,72 @@
 
 {% block extra_head %}
 <style>
-    .monthly-grid .entry { 
+    .monthly-head {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+    .monthly-head div {
+        background: #f7fafc;
+        border: 1px solid #e2e8f0;
+        padding: 10px;
+        font-weight: 600;
+        color: #475569;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        text-align: left;
+        border-radius: 6px;
+    }
+    .monthly-list {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+        align-items: start;
+    }
+    .monthly-day {
+        position: relative;
+        border: 1px solid #e2e8f0;
+        background: #fafbfc;
+        border-radius: 10px;
+        padding: 10px 10px 14px 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 0;
+    }
+    .monthly-day.empty {
+        opacity: 0.6;
+        background: #f8fafc;
+    }
+    .monthly-day .day-header {
+        font-weight: 600;
+        color: #475569;
+        font-size: 12.5px;
+    }
+    .monthly-day .cell-action {
+        position: absolute;
+        right: 8px;
+        top: 8px;
+        bottom: auto;
+        width: 22px;
+        height: 22px;
+        font-size: 15px;
+    }
+    .monthly-day .cell-action:hover {
+        transform: scale(1.05);
+    }
+    .monthly-day .empty {
+        font-size: 12px;
+    }
+    .monthly-day .entry-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 3px;
+        justify-content: flex-start;
+    }
+    .monthly-day .entry { 
         min-height: auto; 
         padding: 3px 5px; 
         gap: 1px; 
@@ -17,29 +82,29 @@
         min-width: 65px;
         max-width: 85px;
     }
-    .monthly-grid .entry:hover {
+    .monthly-day .entry:hover {
         transform: none;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
-    .monthly-grid .entry-header {
+    .monthly-day .entry-header {
         gap: 2px;
         margin-bottom: 0;
         justify-content: center;
     }
-    .monthly-grid .entry-title-row {
+    .monthly-day .entry-title-row {
         justify-content: center;
     }
-    .monthly-grid .entry-chip {
+    .monthly-day .entry-chip {
         font-size: 8px;
         padding: 2px 5px;
         border-radius: 6px;
         font-weight: 600;
     }
-    .monthly-grid .entry-summary {
+    .monthly-day .entry-summary {
         gap: 2px;
         align-items: center;
     }
-    .monthly-grid .entry-meta {
+    .monthly-day .entry-meta {
         font-size: 9px;
         line-height: 1.2;
         white-space: nowrap;
@@ -48,37 +113,20 @@
         max-width: 100%;
         display: block;
     }
-    .monthly-grid .icon-button.delete {
+    .monthly-day .icon-button.delete {
         width: 14px;
         height: 14px;
         top: 2px;
         right: 2px;
         font-size: 9px;
     }
-    .monthly-grid .icon-button.edit {
+    .monthly-day .icon-button.edit {
         display: none;
     }
-    .monthly-grid .entry-footer,
-    .monthly-grid .entry-details,
-    .monthly-grid .entry-toggle {
+    .monthly-day .entry-footer,
+    .monthly-day .entry-details,
+    .monthly-day .entry-toggle {
         display: none !important;
-    }
-    .monthly-grid td.entry-cell {
-        padding: 6px 4px 32px 4px;
-        min-height: 90px;
-    }
-    .monthly-grid .entry-stack {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 3px;
-        justify-content: flex-start;
-    }
-    .monthly-grid .cell-action {
-        width: 22px;
-        height: 22px;
-        font-size: 15px;
-        right: 4px;
-        bottom: 4px;
     }
 </style>
 {% endblock %}
@@ -88,113 +136,119 @@
     <div class="calendar-header">
         <h2>{{ month_start|date:"F Y" }}</h2>
         <div class="actions">
+            <button type="button" id="open-entry-modal"
+                    data-open-entry
+                    {% if selected_inspector %}data-target-inspector="{{ selected_inspector.pk }}"{% elif current_inspector %}data-target-inspector="{{ current_inspector.pk }}"{% endif %}
+                    >Nova entrada</button>
+            <noscript>
+                <a href="{% url 'schedule:entry_create' %}?next={{ request.get_full_path|urlencode }}" class="secondary">Nova entrada</a>
+            </noscript>
             <a href="{% url 'schedule:weekly_schedule' %}" class="secondary">Visão semanal</a>
             <a href="?month={{ month_previous_slug }}" class="secondary">◀ Mês anterior</a>
             <a href="?month={{ month_next_slug }}" class="secondary">Próximo mês ▶</a>
         </div>
     </div>
 
-    <div class="actions" style="margin-bottom: 16px;">
-        <button type="button" id="open-entry-modal"
-                data-open-entry
-                {% if selected_inspector %}data-target-inspector="{{ selected_inspector.pk }}"{% elif current_inspector %}data-target-inspector="{{ current_inspector.pk }}"{% endif %}
-                >Nova entrada</button>
-        <noscript>
-            <a href="{% url 'schedule:entry_create' %}?next={{ request.get_full_path|urlencode }}" class="secondary">Nova entrada</a>
-        </noscript>
-    </div>
+    <form class="search-bar" method="get" action="{% url 'schedule:entry_search' %}">
+        <label for="entry-search-input">Pesquisar item</label>
+        <input id="entry-search-input" name="q" type="search" placeholder="Ex: CP 123, cliente, inspetor..." value="{{ request.GET.q|default_if_none:'' }}" data-entry-search-input>
+        <button type="submit" name="i" value="0">Buscar em todas as semanas</button>
+        <button type="submit" class="ghost" name="i" value="{{ request.GET.i|default:'0'|add:'-1' }}">◀ Resultado (todas)</button>
+        <button type="submit" class="ghost" name="i" value="{{ request.GET.i|default:'0'|add:'1' }}">Próximo (todas) ▶</button>
+        <button type="button" class="ghost" data-entry-search-clear>Limpar</button>
+        <span class="search-status" data-entry-search-status>
+            {% if request.GET.total %}Global: {{ request.GET.i|default:'0'|add:'1' }} de {{ request.GET.total }}{% endif %}
+        </span>
+    </form>
 
-    <table class="monthly-grid" aria-label="Agenda mensal">
-        <thead>
-            <tr>
-                <th>Seg</th>
-                <th>Ter</th>
-                <th>Qua</th>
-                <th>Qui</th>
-                <th>Sex</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for week in weeks %}
-                <tr>
-                    {% for cell in week %}
-                        {% if cell.date.weekday < 5 %}
-                        <td class="entry-cell {% if not cell.is_current_month %}empty{% endif %}"
-                            {% if cell.is_current_month %}
-                                data-drop-enabled="true"
-                                data-drop-date="{{ cell.date|date:'Y-m-d' }}"
-                                {% if selected_inspector %}data-drop-inspector="{{ selected_inspector.pk }}" data-drop-inspector-name="{{ selected_inspector.full_name }}"{% elif current_inspector %}data-drop-inspector="{{ current_inspector.pk }}" data-drop-inspector-name="{{ current_inspector.full_name }}"{% endif %}
-                            {% endif %}>
-                            <div><strong>{{ cell.date|date:"d/m" }}</strong></div>
-                            {% if cell.is_current_month %}
-                                {% if cell.entries %}
-                                    <div class="entry-stack">
-                                        {% for entry in cell.entries %}
-                                            {% with entry.entry_type|lower as entry_type_class %}
-                                                {% with entry.status|default_if_none:""|lower as status_class %}
-                                                    {% if entry.entry_type == entry.ENTRY_TYPE_REPORT %}
-                                                        {% with can_manage=is_manager %}
-                                                            {% if not can_manage and current_inspector and entry.inspector_id == current_inspector.pk %}
-                                                                {% with can_manage=True %}
-                                                                    {% include "schedule/_entry_report.html" with entry=entry status_class=status_class entry_type_class=entry_type_class can_manage=can_manage %}
-                                                                {% endwith %}
-                                                            {% else %}
+    <div class="monthly-head" aria-hidden="true">
+        <div>Seg</div>
+        <div>Ter</div>
+        <div>Qua</div>
+        <div>Qui</div>
+        <div>Sex</div>
+    </div>
+    <div class="monthly-list" aria-label="Agenda mensal">
+        {% for week in weeks %}
+            {% for cell in week %}
+                {% if cell.date.weekday < 5 %}
+                    <div class="monthly-day {% if not cell.is_current_month %}empty{% endif %}"
+                        {% if cell.is_current_month %}
+                            data-drop-enabled="true"
+                            data-drop-date="{{ cell.date|date:'Y-m-d' }}"
+                            {% if selected_inspector %}data-drop-inspector="{{ selected_inspector.pk }}" data-drop-inspector-name="{{ selected_inspector.full_name }}"{% elif current_inspector %}data-drop-inspector="{{ current_inspector.pk }}" data-drop-inspector-name="{{ current_inspector.full_name }}"{% endif %}
+                        {% endif %}>
+                        <div class="day-header">{{ cell.date|date:"d/m" }}</div>
+                        {% if cell.is_current_month %}
+                            {% if cell.entries %}
+                                <div class="entry-stack">
+                                    {% for entry in cell.entries %}
+                                        {% with entry.entry_type|lower as entry_type_class %}
+                                            {% with entry.status|default_if_none:""|lower as status_class %}
+                                                {% if entry.entry_type == entry.ENTRY_TYPE_REPORT %}
+                                                    {% with can_manage=is_manager %}
+                                                        {% if not can_manage and current_inspector and entry.inspector_id == current_inspector.pk %}
+                                                            {% with can_manage=True %}
                                                                 {% include "schedule/_entry_report.html" with entry=entry status_class=status_class entry_type_class=entry_type_class can_manage=can_manage %}
-                                                            {% endif %}
-                                                        {% endwith %}
-                                                    {% else %}
-                                                        <div class="entry {{ entry_type_class }} {% if status_class %}status-{{ status_class }}{% endif %}"
-                                                             draggable="true"
-                                                             data-entry-id="{{ entry.pk }}"
-                                                             data-entry-date="{{ entry.date|date:'Y-m-d' }}"
-                                                             data-entry-inspector="{{ entry.inspector_id }}"
-                                                             data-move-url="{% url 'schedule:entry_move' entry.pk %}">
-                                                            {% if is_manager or current_inspector and entry.inspector_id == current_inspector.pk %}
-                                                                <a href="{% url 'schedule:entry_delete' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button delete" aria-label="Excluir">
-                                                                    &#10006;<span class="sr-only">Excluir</span>
-                                                                </a>
-                                                            {% endif %}
-                                                            <div class="entry-header">
-                                                                <div class="entry-title-row">
-                                                                    {% if entry.entry_type == entry.ENTRY_TYPE_INSPECTION and entry.status %}
-                                                                        <span class="entry-chip status-{{ entry.status|lower }}">{{ entry.get_status_display }}</span>
-                                                                    {% endif %}
-                                                                </div>
-                                                            </div>
-                                                            <div class="entry-summary">
-                                                                <span class="entry-meta" style="font-weight: 600;">{{ entry.inspector.full_name }}</span>
-                                                                {% if entry.sa_number %}
-                                                                    <span class="entry-meta">CP {{ entry.sa_number }}</span>
+                                                            {% endwith %}
+                                                        {% else %}
+                                                            {% include "schedule/_entry_report.html" with entry=entry status_class=status_class entry_type_class=entry_type_class can_manage=can_manage %}
+                                                        {% endif %}
+                                                    {% endwith %}
+                                                {% else %}
+                                                    <div class="entry {{ entry_type_class }} {% if status_class %}status-{{ status_class }}{% endif %} {% if entry.entry_type == entry.ENTRY_TYPE_INSPECTION and entry.inspection_type == entry.INSPECTION_TYPE_EXTERNAL %}external-inspection{% endif %}"
+                                                         draggable="true"
+                                                         data-entry-id="{{ entry.pk }}"
+                                                         data-entry-date="{{ entry.date|date:'Y-m-d' }}"
+                                                         data-entry-inspector="{{ entry.inspector_id }}"
+                                                         data-move-url="{% url 'schedule:entry_move' entry.pk %}">
+                                                        {% if is_manager or current_inspector and entry.inspector_id == current_inspector.pk %}
+                                                            <a href="{% url 'schedule:entry_delete' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button delete" aria-label="Excluir">
+                                                                &#10006;<span class="sr-only">Excluir</span>
+                                                            </a>
+                                                        {% endif %}
+                                                        <div class="entry-header">
+                                                            <div class="entry-title-row">
+                                                                {% if entry.entry_type == entry.ENTRY_TYPE_INSPECTION and entry.status %}
+                                                                    <span class="entry-chip status-{{ entry.status|lower }}">{{ entry.get_status_display }}</span>
                                                                 {% endif %}
                                                             </div>
                                                         </div>
-                                                    {% endif %}
-                                                {% endwith %}
+                                                        <div class="entry-summary">
+                                                            <span class="entry-meta" style="font-weight: 600;">{{ entry.inspector.full_name }}</span>
+                                                            {% if entry.entry_type == entry.ENTRY_TYPE_INSPECTION and entry.inspection_type == entry.INSPECTION_TYPE_EXTERNAL and entry.client %}
+                                                                <span class="entry-meta" style="font-weight: 600; color: #ec4899;">{{ entry.client }}</span>
+                                                            {% endif %}
+                                                            {% if entry.sa_number %}
+                                                                <span class="entry-meta">CP {{ entry.sa_number }}</span>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
                                             {% endwith %}
-                                        {% endfor %}
-                                    </div>
-                                {% else %}
-                                    <span class="empty">—</span>
-                                {% endif %}
-                                {% if is_manager or current_inspector %}
-                    <button type="button" class="cell-action"
-                        data-open-entry
-                        data-target-date="{{ cell.date|date:'Y-m-d' }}"
-                        {% if selected_inspector %}data-target-inspector="{{ selected_inspector.pk }}"{% elif current_inspector %}data-target-inspector="{{ current_inspector.pk }}"{% endif %} aria-label="Adicionar entrada">+</button>
-                                    <noscript>
-                                        <a href="{% url 'schedule:entry_create' %}?date={{ cell.date|date:'Y-m-d' }}{% if selected_inspector %}&inspector={{ selected_inspector.pk }}{% elif current_inspector %}&inspector={{ current_inspector.pk }}{% endif %}&next={{ request.get_full_path|urlencode }}" class="secondary small">Adicionar</a>
-                                    </noscript>
-                                {% endif %}
+                                        {% endwith %}
+                                    {% endfor %}
+                                </div>
                             {% else %}
                                 <span class="empty">—</span>
                             {% endif %}
-                        </td>
+                            {% if is_manager or current_inspector %}
+                                <button type="button" class="cell-action"
+                                    data-open-entry
+                                    data-target-date="{{ cell.date|date:'Y-m-d' }}"
+                                    {% if selected_inspector %}data-target-inspector="{{ selected_inspector.pk }}"{% elif current_inspector %}data-target-inspector="{{ current_inspector.pk }}"{% endif %} aria-label="Adicionar entrada">+</button>
+                                <noscript>
+                                    <a href="{% url 'schedule:entry_create' %}?date={{ cell.date|date:'Y-m-d' }}{% if selected_inspector %}&inspector={{ selected_inspector.pk }}{% elif current_inspector %}&inspector={{ current_inspector.pk }}{% endif %}&next={{ request.get_full_path|urlencode }}" class="secondary small">Adicionar</a>
+                                </noscript>
+                            {% endif %}
+                        {% else %}
+                            <span class="empty">—</span>
                         {% endif %}
-                    {% endfor %}
-                </tr>
+                    </div>
+                {% endif %}
             {% endfor %}
-        </tbody>
-    </table>
+        {% endfor %}
+    </div>
 </div>
 {% include "schedule/_entry_modal.html" %}
 {% endblock %}
