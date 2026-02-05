@@ -43,31 +43,6 @@ Arquivos úteis:
 - `/agenda/busca/?q=...` → busca global (redireciona para `/agenda/?week=...&focus=...`)
 - `/admin/` → admin Django
 
-## Como rodar (Docker)
-
-Pré-requisitos:
-
-- Docker + Docker Compose
-
-Subir o projeto:
-
-- `docker compose up --build`
-
-Primeira execução (migrations e usuário admin):
-
-- `docker compose exec web python manage.py migrate`
-- `docker compose exec web python manage.py createsuperuser`
-
-Acessar:
-
-- http://localhost:8000/ (login)
-- http://localhost:8000/agenda/ (semanal)
-- http://localhost:8000/agenda/mensal/ (mensal)
-
-Observação importante (ALLOWED_HOSTS):
-
-- O projeto atualmente define `ALLOWED_HOSTS` fixo em [sai_project/settings.py](sai_project/settings.py). Se você acessar via `localhost`/`127.0.0.1` e receber **DisallowedHost**, inclua `localhost` e `127.0.0.1` nessa lista.
-
 ## Como rodar (local / Windows)
 
 Pré-requisitos:

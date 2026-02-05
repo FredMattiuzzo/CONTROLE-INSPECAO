@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-h!vl0ay*r^o8vuc0no(k@xsw(u1a@2kr_gy_2gux6n+fc81r6#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', '1') == '1'  # True para desenvolvimento
 
-ALLOWED_HOSTS = ['10.1.1.50']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '10.1.1.50,localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -116,6 +117,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = []
 
 # Default primary key field type
