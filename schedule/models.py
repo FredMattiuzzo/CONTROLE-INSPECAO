@@ -87,3 +87,4 @@ class ScheduleEntry(models.Model):
     def __str__(self):
         inspector_name = self.inspector.full_name
         return f"{inspector_name} - {self.date}"
+

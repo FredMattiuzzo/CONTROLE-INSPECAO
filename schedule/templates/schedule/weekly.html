@@ -37,8 +37,8 @@
         <label for="entry-search-input">Pesquisar item</label>
         <input id="entry-search-input" name="q" type="search" placeholder="Ex: CP 123, cliente, inspetor..." value="{{ request.GET.q|default_if_none:'' }}" data-entry-search-input>
         <button type="submit" name="i" value="0">Buscar</button>
-        <button type="submit" class="ghost" name="i" value="{{ request.GET.i|default:'0'|add:'-1' }}">◀ Anterior</button>
-        <button type="submit" class="ghost" name="i" value="{{ request.GET.i|default:'0'|add:'1' }}">Próximo ▶</button>
+        <button type="submit" class="ghost" name="i" value="{{ request.GET.i|default:'0'|add:'-1' }}">◀ </button>
+        <button type="submit" class="ghost" name="i" value="{{ request.GET.i|default:'0'|add:'1' }}"> ▶</button>
         <button type="button" class="ghost" data-entry-search-clear>Limpar</button>
         <span class="search-status" data-entry-search-status>
             {% if request.GET.total %}Global: {{ request.GET.i|default:'0'|add:'1' }} de {{ request.GET.total }}{% endif %}
