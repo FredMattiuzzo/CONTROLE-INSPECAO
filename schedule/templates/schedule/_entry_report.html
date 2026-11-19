@@ -7,7 +7,7 @@
     data-move-url="{% url 'schedule:entry_move' entry.pk %}">
     {% if manage %}
         <a href="{% url 'schedule:entry_delete' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button delete" aria-label="Excluir">
-            &#10006;<span class="sr-only">Excluir</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg><span class="sr-only">Excluir</span>
         </a>
     {% endif %}
     <div class="entry-header">
@@ -24,7 +24,7 @@
     </div>
     <div class="entry-footer">
         <button type="button" class="entry-toggle" data-toggle-entry aria-expanded="false">
-            <span aria-hidden="true">▼</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
             <span class="sr-only">Detalhes</span>
         </button>
         <div class="entry-footer-meta" style="display:flex; gap:6px; align-items:flex-end;">
@@ -35,7 +35,7 @@
     </div>
     {% if manage %}
         <a href="{% url 'schedule:entry_update' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button edit" aria-label="Editar">
-            &#9998;<span class="sr-only">Editar</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.83 2.83 0 0 0-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg><span class="sr-only">Editar</span>
         </a>
     {% endif %}
     <div class="entry-details report-details">
