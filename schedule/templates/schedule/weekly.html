@@ -5,8 +5,9 @@
 {% block extra_head %}
 <style>
     .status-chip-control { cursor: pointer; }
-    .status-picker { position: absolute; z-index: 1200; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15); padding: 8px; }
-    .status-picker select { width: 180px; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; }
+    .status-picker { position: absolute; z-index: 1200; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.22), 0 4px 10px -4px rgba(15, 23, 42, 0.1); padding: 8px; transform-origin: top left; animation: pop-in 0.18s var(--ease-out); }
+    .status-picker select { width: 180px; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 7px; font: inherit; cursor: pointer; }
+    .status-picker select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
 </style>
 {% endblock %}
 
@@ -88,7 +89,7 @@
                                                           data-move-url="{% url 'schedule:entry_move' entry.pk %}">
                                                         {% if is_manager or current_inspector and entry.inspector_id == current_inspector.pk %}
                                                             <a href="{% url 'schedule:entry_delete' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button delete" aria-label="Excluir">
-                                                                &#10006;<span class="sr-only">Excluir</span>
+                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg><span class="sr-only">Excluir</span>
                                                             </a>
                                                         {% endif %}
                                                         <div class="entry-header">
@@ -123,7 +124,7 @@
                                                         </div>
                                                         <div class="entry-footer">
                                                             <button type="button" class="entry-toggle" data-toggle-entry aria-expanded="false">
-                                                                <span aria-hidden="true">▼</span>
+                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
                                                                 <span class="sr-only">Detalhes</span>
                                                             </button>
                                                             <div class="entry-footer-meta" style="display:flex; gap:6px; align-items:flex-end;">
@@ -134,7 +135,7 @@
                                                         </div>
                                                         {% if is_manager or current_inspector and entry.inspector_id == current_inspector.pk %}
                                                             <a href="{% url 'schedule:entry_update' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button edit" aria-label="Editar">
-                                                                &#9998;<span class="sr-only">Editar</span>
+                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.83 2.83 0 0 0-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg><span class="sr-only">Editar</span>
                                                             </a>
                                                         {% endif %}
                                                         <div class="entry-details">

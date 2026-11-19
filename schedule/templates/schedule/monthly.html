@@ -57,8 +57,16 @@
         height: 22px;
         font-size: 15px;
     }
-    .monthly-day .cell-action:hover {
-        transform: scale(1.05);
+    .monthly-day {
+        transition: background-color 0.2s ease, box-shadow 0.25s ease, border-color 0.2s ease;
+    }
+    .monthly-day:not(.empty):hover {
+        background: #fff;
+        border-color: #d6e0ee;
+        box-shadow: 0 4px 12px -6px rgba(15, 23, 42, 0.15);
+    }
+    .monthly-day .cell-action {
+        border-radius: 7px;
     }
     .monthly-day .empty {
         font-size: 12px;
@@ -69,23 +77,30 @@
         gap: 3px;
         justify-content: flex-start;
     }
-    .monthly-day .entry { 
-        min-height: auto; 
-        padding: 3px 5px; 
-        gap: 1px; 
+    .monthly-day .entry {
+        min-height: auto;
+        padding: 4px 6px 4px 8px;
+        gap: 1px;
         font-size: 9px;
-        border-radius: 4px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        border-radius: 6px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
         display: inline-block;
         text-align: center;
         width: auto;
         min-width: 65px;
         max-width: 85px;
     }
+    .monthly-day .entry::before { width: 3px; }
     .monthly-day .entry:hover {
-        transform: none;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px -4px rgba(15, 23, 42, 0.2);
     }
+    .monthly-day .entry:hover::before { width: 3px; }
+    .monthly-day .entry-chip[class*="status-"]::before { width: 5px; height: 5px; }
+    .monthly-day .entry-chip { gap: 3px; }
+    .monthly-day .entry-title { font-size: 10px; letter-spacing: 0; }
+    .monthly-day .icon-button svg { width: 8px; height: 8px; }
+    .monthly-day .icon-button { border-radius: 4px; }
     .monthly-day .entry-header {
         gap: 2px;
         margin-bottom: 0;
@@ -204,7 +219,7 @@
                                                          data-move-url="{% url 'schedule:entry_move' entry.pk %}">
                                                         {% if is_manager or current_inspector and entry.inspector_id == current_inspector.pk %}
                                                             <a href="{% url 'schedule:entry_delete' entry.pk %}?next={{ request.get_full_path|urlencode }}" class="icon-button delete" aria-label="Excluir">
-                                                                &#10006;<span class="sr-only">Excluir</span>
+                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg><span class="sr-only">Excluir</span>
                                                             </a>
                                                         {% endif %}
                                                         <div class="entry-header">
